@@ -1,4 +1,5 @@
 ﻿using System;
+using TextRPG.Graphics;
 
 namespace TextRPG
 {
@@ -6,31 +7,61 @@ namespace TextRPG
     {
         static void Main(string[] args)
         {
+
+            Window window = new Window();
             Player player = new Player();
             MonsterManager monsterManager = new MonsterManager();
 
-            string userInput = "";
+            bool hidePressedKey = true;
+            bool quit = false;
+            ConsoleKeyInfo keyInfo;
             do
             {
-                Console.WriteLine("(1) Attack (2) Check Status (3) Change Monster |  (quit) Quit Game");
-                Console.Write("Action: ");
-                userInput = Console.ReadLine();
+                Console.WriteLine("(0)Quit (1)Player Status (2)Choose Monster (3)Attack (4)Inventory (5)Revive Monster (6)Spawn Monster");
+                keyInfo = Console.ReadKey(hidePressedKey);
                 Console.WriteLine();
 
-                switch (userInput)
+                switch (keyInfo.Key)
                 {
-                    case ("1"):
+                    case (ConsoleKey.D0):
+                        Console.Write("Are you sure you want to quit? (0)Yes (1)No");
+                        keyInfo = Console.ReadKey(hidePressedKey);
+                        if (keyInfo.Key == ConsoleKey.D0)
+                            quit = true;
+                        break;
+
+                    // Player Status
+                    case (ConsoleKey.D1):
+                        player.PrintStatus();
+                        Console.WriteLine();
+                        break;
+
+                    // Choose Monster
+                    case (ConsoleKey.D2):
+                        monsterManager.PrintMonsters();
+                        keyInfo = Console.ReadKey(hidePressedKey);
+                        int index = int.Parse(keyInfo.KeyChar.ToString());
+                        monsterManager.ChooseMonster(index);
+                        break;
+
+                    // Attack
+                    case (ConsoleKey.D3):
                         player.Attack(monsterManager.CurrentMonster);
                         break;
 
-                    case ("2"):
-                        player.PrintStatus();
-                        Console.WriteLine();
-                        monsterManager.CurrentMonster.PrintStatus();
+                    // Bomb Attack
+                    case (ConsoleKey.D4):
+                        player.BombAttack(monsterManager.CurrentMonster);
                         break;
 
-                    case ("3"):
-                        monsterManager.NextMonster();
+                    // Revive Monster
+                    case (ConsoleKey.D5):
+                        monsterManager.CurrentMonster.Revive();
+                        break;
+
+                    // Spawn Monster
+                    case (ConsoleKey.D6):
+                        monsterManager.SpawnMonster();
                         break;
 
                     default:
@@ -38,8 +69,8 @@ namespace TextRPG
                         break;
                 }
 
-                Console.WriteLine();
-            } while (userInput != "quit");
+                Console.WriteLine("----------------------------------");
+            } while (!quit);
         }
     }
 }

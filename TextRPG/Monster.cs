@@ -80,12 +80,12 @@ namespace TextRPG
             // sometimes the damage will be negative 
             float damage = MathF.Max(strength * ATTACKER_STRENGTH_MULTIPLIER - _armorClass * ARMOR_CLASS_MULTIPLIER, 1f);
             _healthPoints -= damage;
-
             Status = HealthStatus.HalfHealth;
+            ActionQueue.Enqueue(string.Format("{0} Took: {1} Damage", Name, damage));
+
             if (_healthPoints <= 0)
                 Die();
 
-            ActionQueue.Enqueue(string.Format("{0} Took: {1} Damage", Name, damage));
             ActionQueue.Enqueue(string.Format("Health: ({0}/{1}) ", _healthPoints, HEALTH_POINT_MAX));
         }
 
@@ -125,6 +125,7 @@ namespace TextRPG
         {
             Status = HealthStatus.Dead;
             _healthPoints = 0;
+            ActionQueue.Enqueue(string.Format("{0} is Dead", Name));
             OnDied();
         }
 
@@ -142,10 +143,10 @@ namespace TextRPG
                 hStatus = "HALF HEALTH";
 
             info[0] = string.Format("Name: {0}", Name);
-            info[1] = string.Format("HealthPoints:({0}/{1})", _healthPoints, HEALTH_POINT_MAX);
-            info[2] = string.Format("Dexterity:{0,-10}", _dexterity);
-            info[3] = string.Format("ArmorClass:{0,-10}", _dexterity);
-            info[4] = string.Format("Exp:{0,-10}", _experience);
+            info[1] = string.Format("   -HealthPoints:({0}/{1})", _healthPoints, HEALTH_POINT_MAX);
+            info[2] = string.Format("   -Dexterity:{0,-10}", _dexterity);
+            info[3] = string.Format("   -ArmorClass:{0,-10}", _dexterity);
+            info[4] = string.Format("   -Exp:{0,-10}", _experience);
             info[5] = hStatus;
             return info;
         }

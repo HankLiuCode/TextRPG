@@ -38,13 +38,13 @@ namespace TextRPG
                 if (j >= items.Length)
                     break;
                 slots[i] = items[j];
-                actionQueue.Enqueue(string.Format("Added {0} to slots", GetName(items[j])));
+                actionQueue.Enqueue(string.Format("Added {0} to Inventory", GetName(items[j])));
                 j++;
             }
 
             for (int i = j; i < items.Length; i++)
             {
-                actionQueue.Enqueue(string.Format("slots is full {0} is discarded", GetName(items[j])));
+                actionQueue.Enqueue(string.Format("Inventory is full {0} is discarded", GetName(items[j])));
             }
         }
 

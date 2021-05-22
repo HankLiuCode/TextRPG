@@ -21,7 +21,7 @@ namespace TextRPG
 
             for(int i = 0; i < 8; i++)
             {
-                SpawnMonster("Monster" + i);
+                SpawnMonster("Monster " + (i+1));
             }
             currentMonsterIndex = 0;
         }

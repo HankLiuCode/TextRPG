@@ -33,6 +33,7 @@ namespace TextRPG.Graphics
             string hBorder = new string('-', _width);
             string emptyLine = "|" + new string(' ', _width - 2) + "|";
             int cursorPositionY = 0;
+
             
             Console.WriteLine(boldHBorder);
             Console.WriteLine(emptyLine);

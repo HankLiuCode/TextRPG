@@ -1,16 +1,14 @@
 ﻿using System;
 using TextRPG.Graphics;
 
-namespace TextRPG
+namespace TextRPG.GUI
 {
     class PlayerMenu : Window
     {
         private Player _player;
-        private MonsterManager _monsterManager;
-        public PlayerMenu(int width, int height, Player player, MonsterManager monsterManager) : base(width, height)
+        public PlayerMenu(int width, int height, Player player) : base(width, height)
         {
             _player = player;
-            _monsterManager = monsterManager;
         }
         public override void Show()
         {
@@ -37,11 +35,11 @@ namespace TextRPG
 
                 if (keyInfo.Key == ConsoleKey.D1)
                 {
-                    AddToOutputBuffer("1 is pressed");
+                    AddToOutputBuffer(_player.GetInfo());
                 }
                 else if (keyInfo.Key == ConsoleKey.D2)
                 {
-                    AddToOutputBuffer("2 is pressed");
+                    AddToOutputBuffer(_player.GetInventoryInfo());
                 }
                 else if (keyInfo.Key == ConsoleKey.D0)
                 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TextRPG.Utils;
 
 namespace TextRPG
@@ -23,51 +24,53 @@ namespace TextRPG
         public readonly string[] MONSTER_NAMES = {"Zombie", "Golem", "Goblin", "Werewolf", "Vampire"};
 
         public HealthStatus Status { get; private set; }
-        private byte buffStatus;
+        private byte _buffStatus;
 
-        private RPGRandom random;
-        private float healthPoints;
-        private float dexterity;
-        private float armorClass;
-        private float experience;
-        private bool experienceTaken;
+        private RPGRandom _random;
+        private float _healthPoints;
+        private float _dexterity;
+        private float _armorClass;
+        private float _experience;
+        private bool _experienceTaken;
 
-        private int[] loot = new int[] { 1, 1, 1 };
+        private int[] _loot = new int[] { 1, 1, 1 };
 
         public string Name { get; private set; }
+        public Queue<string> ActionQueue { get; private set; }
         public event EventHandler Died;
 
         public Monster(string name)
         {
-            random = new RPGRandom();
-            healthPoints = HEALTH_POINT_MAX;
-            dexterity = random.NextFloat(DEX_MIN, DEX_MAX);
-            armorClass = random.NextFloat(ARMOR_CLASS_MIN, ARMOR_CLASS_MAX);
-            experience = random.NextFloat(EXP_MIN, EXP_MAX);
-            Name = name; //random.PickFrom(MONSTER_NAMES);
+            _random = new RPGRandom();
+            _healthPoints = HEALTH_POINT_MAX;
+            _dexterity = _random.NextFloat(DEX_MIN, DEX_MAX);
+            _armorClass = _random.NextFloat(ARMOR_CLASS_MIN, ARMOR_CLASS_MAX);
+            _experience = _random.NextFloat(EXP_MIN, EXP_MAX);
+            Name = name; //_random.PickFrom(MONSTER_NAMES);
             Status = HealthStatus.FullHealth;
+            ActionQueue = new Queue<string>();
         }
 
         public bool CheckStatus(byte mask)
         {
-            return (mask & buffStatus) == mask;
+            return (mask & _buffStatus) == mask;
         }
 
         public void RemoveStatus(byte mask)
         {
             byte m = mask;
             // cannot use ~ on const
-            buffStatus &= (byte)~m;
+            _buffStatus &= (byte)~m;
         }
 
         public void SetStatus(byte mask)
         {
-            buffStatus |= mask;
+            _buffStatus |= mask;
         }
 
         public bool AttackSuccessful(float attackerDexterity, float attackerAccuracy)
         {
-            return (attackerDexterity / dexterity + attackerAccuracy) > ATTACK_SUCCESSFUL_THRESHOLD;
+            return (attackerDexterity / _dexterity + attackerAccuracy) > ATTACK_SUCCESSFUL_THRESHOLD;
         }
 
         public void TakeDamage(float strength)
@@ -75,38 +78,40 @@ namespace TextRPG
             if (Status == HealthStatus.Dead)
                 return;
             // sometimes the damage will be negative 
-            float damage = MathF.Max(strength * ATTACKER_STRENGTH_MULTIPLIER - armorClass * ARMOR_CLASS_MULTIPLIER, 1f);
-            healthPoints -= damage;
+            float damage = MathF.Max(strength * ATTACKER_STRENGTH_MULTIPLIER - _armorClass * ARMOR_CLASS_MULTIPLIER, 1f);
+            _healthPoints -= damage;
 
             Status = HealthStatus.HalfHealth;
-            if (healthPoints <= 0)
+            if (_healthPoints <= 0)
                 Die();
 
-            Console.WriteLine("{0} Took: {1} Damage", Name, damage);
-            Console.WriteLine("Health: ({0}/{1}) ", healthPoints, HEALTH_POINT_MAX);
+            ActionQueue.Enqueue(string.Format("{0} Took: {1} Damage", Name, damage));
+            ActionQueue.Enqueue(string.Format("Health: ({0}/{1}) ", _healthPoints, HEALTH_POINT_MAX));
         }
 
         public float TakeExperience()
         {
-            if (experienceTaken || Status != HealthStatus.Dead)
+            if (_experienceTaken || Status != HealthStatus.Dead)
                 return 0;
 
-            experienceTaken = true;
-            return experience;
+            _experienceTaken = true;
+            return _experience;
         }
 
         public int[] Loot()
         {
-            return loot;
+            if(_random.NextFloat(0f, 1f) > 0.5f)
+                return _loot;
+            return new int[0];
         }
 
         public void Revive()
         {
             if(Status == HealthStatus.Dead)
             {
-                healthPoints = HEALTH_POINT_MAX;
+                _healthPoints = HEALTH_POINT_MAX;
                 Status = HealthStatus.FullHealth;
-                Console.WriteLine("{0} is revived!", Name);
+                ActionQueue.Enqueue(string.Format("{0} is revived!", Name));
             }
         }
 
@@ -119,7 +124,7 @@ namespace TextRPG
         public void Die()
         {
             Status = HealthStatus.Dead;
-            healthPoints = 0;
+            _healthPoints = 0;
             OnDied();
         }
 
@@ -137,27 +142,12 @@ namespace TextRPG
                 hStatus = "HALF HEALTH";
 
             info[0] = string.Format("Name: {0}", Name);
-            info[1] = string.Format("HealthPoints:{0,-10}", healthPoints);
-            info[2] = string.Format("Dexterity:{0,-10}", dexterity);
-            info[3] = string.Format("ArmorClass:{0,-10}", dexterity);
-            info[4] = string.Format("Exp:{0,-10}", experience);
+            info[1] = string.Format("HealthPoints:({0}/{1})", _healthPoints, HEALTH_POINT_MAX);
+            info[2] = string.Format("Dexterity:{0,-10}", _dexterity);
+            info[3] = string.Format("ArmorClass:{0,-10}", _dexterity);
+            info[4] = string.Format("Exp:{0,-10}", _experience);
             info[5] = hStatus;
             return info;
-        }
-
-        // deprecated
-        public void PrintStatus()
-        {
-            Console.WriteLine("{0} Status:", Name);
-            Console.WriteLine("HealthPoints:{0,-10} Dexterity:{1,-10} ArmorClass:{2,-10} Exp:{3,-10}", healthPoints, dexterity, armorClass, experience);
-            if (Status == HealthStatus.Dead)
-                Console.WriteLine("DEAD");
-
-            else if(Status == HealthStatus.FullHealth)
-                Console.WriteLine("FULL HEALTH");
-
-            else if (Status == HealthStatus.HalfHealth)
-                Console.WriteLine("HALF HEALTH");
         }
     }
 }

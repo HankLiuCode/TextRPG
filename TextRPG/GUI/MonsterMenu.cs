@@ -1,7 +1,7 @@
 ﻿using System;
 using TextRPG.Graphics;
 
-namespace TextRPG
+namespace TextRPG.GUI
 {
     class MonsterMenu : Window
     {

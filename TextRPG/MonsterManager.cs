@@ -60,19 +60,5 @@ namespace TextRPG
             }
             return options;
         }
-
-
-        // deprecated
-        public void PrintMonsters()
-        {
-            string monstersUI = "";
-            for(int i=0; i<monsters.Count; i++)
-            {
-                monstersUI += string.Format("{0,-3}{1,-20}", i + 1, monsters[i].Name);
-                if ((i+1) % 5 == 0)
-                    monstersUI += "\n";
-            }
-            Console.WriteLine(monstersUI);
-        }
     }
 }

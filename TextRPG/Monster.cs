@@ -20,7 +20,7 @@ namespace TextRPG
         public const byte STUNNED_MASK = 0b_0000_0001;
         public const byte POISONED_MASK = 0b_0000_0010;
 
-        public readonly string[] MONSTER_NAMES = {"Bob The Monster", "Ripper Jack", "Deadly Robin", "A Goblem", "Vampire"};
+        public readonly string[] MONSTER_NAMES = {"Zombie", "Golem", "Goblin", "Werewolf", "Vampire"};
 
         public HealthStatus Status { get; private set; }
         private byte buffStatus;
@@ -37,14 +37,14 @@ namespace TextRPG
         public string Name { get; private set; }
         public event EventHandler Died;
 
-        public Monster()
+        public Monster(string name)
         {
             random = new RPGRandom();
             healthPoints = HEALTH_POINT_MAX;
             dexterity = random.NextFloat(DEX_MIN, DEX_MAX);
             armorClass = random.NextFloat(ARMOR_CLASS_MIN, ARMOR_CLASS_MAX);
             experience = random.NextFloat(EXP_MIN, EXP_MAX);
-            Name = random.PickFrom(MONSTER_NAMES);
+            Name = name; //random.PickFrom(MONSTER_NAMES);
             Status = HealthStatus.FullHealth;
         }
 
@@ -123,6 +123,29 @@ namespace TextRPG
             OnDied();
         }
 
+        public string[] GetInfo()
+        {
+            string[] info = new string[6];
+            string hStatus = "";
+            if (Status == HealthStatus.Dead)
+                hStatus = "DEAD";
+
+            else if (Status == HealthStatus.FullHealth)
+                hStatus = "FULL HEALTH";
+
+            else if (Status == HealthStatus.HalfHealth)
+                hStatus = "HALF HEALTH";
+
+            info[0] = string.Format("Name: {0}", Name);
+            info[1] = string.Format("HealthPoints:{0,-10}", healthPoints);
+            info[2] = string.Format("Dexterity:{0,-10}", dexterity);
+            info[3] = string.Format("ArmorClass:{0,-10}", dexterity);
+            info[4] = string.Format("Exp:{0,-10}", experience);
+            info[5] = hStatus;
+            return info;
+        }
+
+        // deprecated
         public void PrintStatus()
         {
             Console.WriteLine("{0} Status:", Name);

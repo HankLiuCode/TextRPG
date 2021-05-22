@@ -18,26 +18,30 @@ namespace TextRPG
         public MonsterManager()
         {
             monsters = new List<Monster>();
-            SpawnMonster();
+
+            for(int i = 0; i < 8; i++)
+            {
+                SpawnMonster("Monster" + i);
+            }
             currentMonsterIndex = 0;
         }
 
-        public void ChooseMonster(int inputIndex)
+        public void ChooseMonster(int index)
         {
-            int index = inputIndex - 1;
             if (index < monsters.Count && index > -1)
             {
                 currentMonsterIndex = index;
-                Console.WriteLine("You chose {0} as your opponent", monsters[currentMonsterIndex].Name);
-                monsters[currentMonsterIndex].PrintStatus();
             }
-            else
-                Console.WriteLine("Invalid Monster Index!");
         }
 
-        public void SpawnMonster()
+        public string[] CurrentMonsterInfo()
+        { 
+            return monsters[currentMonsterIndex].GetInfo();
+        }
+
+        public void SpawnMonster(string name)
         {
-            Monster m = new Monster();
+            Monster m = new Monster(name);
             m.Died += M_Died;
             monsters.Add(m);
         }
@@ -47,6 +51,18 @@ namespace TextRPG
             
         }
 
+        public string[] GetOptions()
+        {
+            string[] options = new string[monsters.Count];
+            for(int i=0; i<options.Length; i++)
+            {
+                options[i] = string.Format("({0}) {1}", i+1, monsters[i].Name);
+            }
+            return options;
+        }
+
+
+        // deprecated
         public void PrintMonsters()
         {
             string monstersUI = "";

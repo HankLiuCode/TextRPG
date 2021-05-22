@@ -4,30 +4,94 @@ using System.Text;
 
 namespace TextRPG.Graphics
 {
-    class Window
+    public abstract class Window
     {
-        public Window()
-        {
+        protected int _width;
+        protected int _height;
+        protected bool _hidePressedKey;
+        private List<string> _outputBuffer;
 
+        public Window(int width, int height, bool hidePressedKey = true)
+        {
+            _width = width;
+            _height = height;
+            _hidePressedKey = hidePressedKey;
+            _outputBuffer = new List<string>();
+            Console.CursorVisible = false;
         }
 
-        public static void Render()
+        protected void Render(int cursorX, int cursorY)
         {
-            Console.WriteLine("==============================================================");
-            Console.WriteLine("#  (0)Quit (1)Combat (2)Inventory                |");
-            Console.WriteLine("#                                                            |");
-            Console.WriteLine("#------------------------------------------------------------|");
-            Console.WriteLine("#  Player Status:                                            |");
-            Console.WriteLine("#  Strength: 19.04   Dexterity: 9.57   Accuracy: 0.73 Exp: 0 |");
-            Console.WriteLine("#                                                            |");
-            Console.WriteLine("#                                                            |");
-            Console.WriteLine("#                                                            |");
-            Console.WriteLine("==============================================================");
+            Render(FlushOutputBuffer(), cursorX, cursorY);
         }
 
-        public static void AddLine(string line)
+        protected void Render(string[] renderString, int cursorX, int cursorY)
         {
+            Console.SetCursorPosition(cursorX, cursorY);
 
+            string boldHBorder = new string('=', _width);
+            string hBorder = new string('-', _width);
+            string emptyLine = "|" + new string(' ', _width - 2) + "|";
+            int cursorPositionY = 0;
+            
+            Console.WriteLine(boldHBorder);
+            Console.WriteLine(emptyLine);
+            cursorPositionY += 2;
+
+            string targetFormatString = "|"+ "{0," + -(_width - 2) + "}" + "|";
+            for(int i=0; i < renderString.Length; i++)
+            {
+                string resultString = string.Format(targetFormatString, renderString[i]);
+                Console.WriteLine(resultString);
+                cursorPositionY += 1;
+            }
+
+            for(int i=cursorPositionY; i<_height - 1; i++)
+            {
+                Console.WriteLine(emptyLine);
+            }
+            Console.WriteLine(hBorder);
         }
+
+        protected void AddBorder()
+        {
+            string boldHBorder = new string('=', _width - 2);
+            AddToOutputBuffer(boldHBorder);
+        }
+
+        protected void AddNewLine(int count = 1)
+        {
+            for(int i = 0; i < count; i++)
+            {
+                AddToOutputBuffer("");
+            }
+        }
+
+        protected void InsertIntoOutputBuffer(int index, string output)
+        {
+            _outputBuffer.Insert(index, output);
+        }
+
+        protected void AddToOutputBuffer(string output)
+        {
+            _outputBuffer.Add(output);
+        }
+
+        protected void AddToOutputBuffer(string[] output)
+        {
+            for(int i = 0; i < output.Length; i++)
+            {
+                AddToOutputBuffer(output[i]);
+            }
+        }
+
+        protected string[] FlushOutputBuffer()
+        {
+            string[] arr = _outputBuffer.ToArray();
+            _outputBuffer.Clear();
+            return arr;
+        }
+
+        public abstract void Show();
     }
 }

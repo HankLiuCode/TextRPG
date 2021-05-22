@@ -7,8 +7,15 @@ namespace TextRPG
     {
         static void Main(string[] args)
         {
+            MonsterManager monsterManager = new MonsterManager();
+            MonsterMenu monsterMenu = new MonsterMenu(80, 25, monsterManager);
+            PlayerMenu playerMenu = new PlayerMenu(80, 25);
+            MainMenu mainMenu = new MainMenu(80, 25, monsterMenu, monsterManager, playerMenu);
+            mainMenu.Show();
+        }
 
-            Window window = new Window();
+        public void Temp()
+        {
             Player player = new Player();
             MonsterManager monsterManager = new MonsterManager();
 
@@ -17,6 +24,7 @@ namespace TextRPG
             ConsoleKeyInfo keyInfo;
             do
             {
+
                 Console.WriteLine("(0)Quit (1)Player Status (2)Choose Monster (3)Attack (4)Inventory (5)Revive Monster (6)Spawn Monster");
                 keyInfo = Console.ReadKey(hidePressedKey);
                 Console.WriteLine();
@@ -61,7 +69,7 @@ namespace TextRPG
 
                     // Spawn Monster
                     case (ConsoleKey.D6):
-                        monsterManager.SpawnMonster();
+                        monsterManager.SpawnMonster("Monster");
                         break;
 
                     default:

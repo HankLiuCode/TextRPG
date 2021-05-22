@@ -122,6 +122,16 @@ namespace TextRPG
             }
         }
 
+        public void GetInfo()
+        {
+            string[] info = new string[5];
+            info[0] = "Player Status:";
+            info[1] = string.Format("Strength:{0,-10}", strength);
+            info[2] = string.Format("Dexterity:{0,-10}", dexterity);
+            info[3] = string.Format("Accuracy:{0,-10}", accuracy);
+            info[4] = string.Format("Exp: {0,-10}", experience);
+        }
+
         public void PrintStatus()
         {
             Console.WriteLine("Player Status:");

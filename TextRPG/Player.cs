@@ -37,39 +37,32 @@ namespace TextRPG
             experience = 0f;
         }
 
-      
-        
+        public void Loot(Monster monster)
+        {
+            experience += monster.TakeExperience();
+            int[] items = monster.Loot();
+            inventory.AddToEmptySlots(items, ActionQueue);
+            ActionQueue.Enqueue(string.Format("Player Experience: " + experience));
+        }
+
+        public string[] GetActions()
+        {
+            string[] actions = ActionQueue.ToArray();
+            ActionQueue.Clear();
+            return actions;
+        }
+
 
         public void Attack(Monster monster)
         {
-            if (monster.Status == HealthStatus.Dead)
+            bool success = monster.TryTakeDamage(dexterity, accuracy, strength);
+            if (success)
             {
-                ActionQueue.Enqueue(string.Format("{0} is already dead", monster.Name));
-                return;
+                if (monster.IsDead)
+                {
+                    Loot(monster);
+                }
             }
-
-            if (!monster.AttackSuccessful(dexterity, accuracy))
-            {
-                ActionQueue.Enqueue("Attack Unsuccessful");
-                return;
-            }
-            else
-            {
-                ActionQueue.Enqueue("Attack Successful!");
-            }
-
-            monster.TakeDamage(strength);
-
-            if (monster.Status == HealthStatus.Dead)
-            {
-                experience += monster.TakeExperience();
-                int[] items = monster.Loot();
-                inventory.AddToEmptySlots(items, ActionQueue);
-
-                ActionQueue.Enqueue(string.Format("Player Experience: " + experience));
-            }
-
-
         }
 
         public void BombAttack(Monster monster)
@@ -80,20 +73,16 @@ namespace TextRPG
                 return;
             }
 
-
-            if (monster.Status == HealthStatus.Dead)
+            if (monster.IsDead)
             {
                 ActionQueue.Enqueue(string.Format("{0} is already dead", monster.Name));
                 return;
             }
 
             monster.TakeDamage(BOMB_DAMAGE);
-            if (monster.Status == HealthStatus.Dead)
+            if (monster.IsDead)
             {
-                experience += monster.TakeExperience();
-                int[] items = monster.Loot();
-                inventory.AddToEmptySlots(items, ActionQueue);
-                ActionQueue.Enqueue(string.Format("Player Experience: " + experience));
+                Loot(monster);
             }
         }
 

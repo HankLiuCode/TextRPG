@@ -10,14 +10,18 @@ namespace TextRPG.GUI
         {
             _player = player;
         }
-        public override void Show()
-        {
-            ConsoleKeyInfo keyInfo;
 
+        public void AddOptionsToBuffer()
+        {
             AddToOutputBuffer("(0)Back to Menu");
             AddToOutputBuffer("(1)Stats  (2)Inventory");
             AddNewLine();
             AddBorder();
+        }
+        public override void Show()
+        {
+            ConsoleKeyInfo keyInfo;
+            AddOptionsToBuffer();
             Render(0, 0);
 
             while (true)
@@ -28,10 +32,7 @@ namespace TextRPG.GUI
                     break;
                 }
 
-                AddToOutputBuffer("(0)Back to Menu");
-                AddToOutputBuffer("(1)Stats  (2)Inventory");
-                AddNewLine();
-                AddBorder();
+                AddOptionsToBuffer();
 
                 if (keyInfo.Key == ConsoleKey.D1)
                 {

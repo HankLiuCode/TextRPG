@@ -24,7 +24,7 @@ namespace TextRPG.Graphics
         {
             Render(FlushOutputBuffer(), cursorX, cursorY);
         }
-
+        
         protected void Render(string[] renderString, int cursorX, int cursorY)
         {
             Console.SetCursorPosition(cursorX, cursorY);
@@ -40,8 +40,11 @@ namespace TextRPG.Graphics
             cursorPositionY += 2;
 
             string targetFormatString = "|"+ "{0," + -(_width - 2) + "}" + "|";
+
             for(int i=0; i < renderString.Length; i++)
             {
+                if (cursorPositionY > _height - 1)
+                    break;
                 string resultString = string.Format(targetFormatString, renderString[i]);
                 Console.WriteLine(resultString);
                 cursorPositionY += 1;

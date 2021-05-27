@@ -15,7 +15,9 @@ namespace TextRPG.Utils
         {
             if (min > max) 
                 throw new ArgumentException("min > max", "min cannot be larger than max");
-            return MathF.Round( (float) (random.NextDouble() * (max - min)) + min, 2);
+
+            float result = MathF.Round((float)(random.NextDouble() * (max - min) + min), 2);
+            return result;
         }
 
         public string PickFrom(string[] strings)

@@ -11,14 +11,17 @@ namespace TextRPG.GUI
             _monsterManager = monsterManager;
         }
 
-        public override void Show()
+        public void AddOptionsToBuffer()
         {
-            ConsoleKeyInfo keyInfo;
-
             AddToOutputBuffer("(0) Back to Menu");
             AddNewLine();
             AddToOutputBuffer(_monsterManager.GetOptions());
             AddBorder();
+        }
+        public override void Show()
+        {
+            ConsoleKeyInfo keyInfo;
+            AddOptionsToBuffer();
             Render(0,0);
 
             while (true)
@@ -29,11 +32,7 @@ namespace TextRPG.GUI
                     break;
                 }
 
-                AddToOutputBuffer("(0) Back to Menu");
-                AddNewLine();
-                AddToOutputBuffer(_monsterManager.GetOptions());
-                AddBorder();
-
+                AddOptionsToBuffer();
                 if (char.IsDigit(keyInfo.KeyChar))
                 {
                     int index = int.Parse(keyInfo.KeyChar.ToString());

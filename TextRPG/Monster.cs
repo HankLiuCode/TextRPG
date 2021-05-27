@@ -24,6 +24,13 @@ namespace TextRPG
         public readonly string[] MONSTER_NAMES = {"Zombie", "Golem", "Goblin", "Werewolf", "Vampire"};
 
         public HealthStatus Status { get; private set; }
+        public bool IsDead { 
+            get {
+                if (Status == HealthStatus.Dead)
+                    return true;
+                return false;
+            }
+            }
         private byte _buffStatus;
 
         private RPGRandom _random;
@@ -33,7 +40,7 @@ namespace TextRPG
         private float _experience;
         private bool _experienceTaken;
 
-        private int[] _loot = new int[] { 1, 1, 1 };
+        private int[] _loot = new int[] { 1, 1 };
 
         public string Name { get; private set; }
         public Queue<string> ActionQueue { get; private set; }
@@ -49,6 +56,11 @@ namespace TextRPG
             Name = name; //_random.PickFrom(MONSTER_NAMES);
             Status = HealthStatus.FullHealth;
             ActionQueue = new Queue<string>();
+        }
+
+        public void Attack(Player player)
+        {
+
         }
 
         public bool CheckStatus(byte mask)
@@ -68,26 +80,51 @@ namespace TextRPG
             _buffStatus |= mask;
         }
 
+        public string[] GetActions()
+        {
+            string[] actions = ActionQueue.ToArray();
+            ActionQueue.Clear();
+            return actions;
+        }
+
         public bool AttackSuccessful(float attackerDexterity, float attackerAccuracy)
         {
             return (attackerDexterity / _dexterity + attackerAccuracy) > ATTACK_SUCCESSFUL_THRESHOLD;
         }
 
-        public void TakeDamage(float strength)
+        public bool TryTakeDamage(float dexterity, float accuracy, float strength)
         {
             if (Status == HealthStatus.Dead)
-                return;
+            {
+                ActionQueue.Enqueue(string.Format("{0} is already dead", Name));
+                return false;
+            }
+
+            if (AttackSuccessful(dexterity, accuracy))
+            {
+                ActionQueue.Enqueue("Attack Successful");
+                float damage = MathF.Max(strength * ATTACKER_STRENGTH_MULTIPLIER - _armorClass * ARMOR_CLASS_MULTIPLIER, 1f);
+                TakeDamage(damage);
+                return true;
+            }
+            else
+            {
+                ActionQueue.Enqueue("Attack UnSuccessful");
+                return false;
+            }
+        }
+
+        public void TakeDamage(float damage)
+        {
             // sometimes the damage will be negative 
-            float damage = MathF.Max(strength * ATTACKER_STRENGTH_MULTIPLIER - _armorClass * ARMOR_CLASS_MULTIPLIER, 1f);
             _healthPoints -= damage;
             Status = HealthStatus.HalfHealth;
             ActionQueue.Enqueue(string.Format("{0} Took: {1} Damage", Name, damage));
 
             if (_healthPoints <= 0)
                 Die();
-
             ActionQueue.Enqueue(string.Format("Health: ({0}/{1}) ", _healthPoints, HEALTH_POINT_MAX));
-        }
+        } 
 
         public float TakeExperience()
         {
@@ -112,6 +149,10 @@ namespace TextRPG
                 _healthPoints = HEALTH_POINT_MAX;
                 Status = HealthStatus.FullHealth;
                 ActionQueue.Enqueue(string.Format("{0} is revived!", Name));
+            }
+            else
+            {
+                ActionQueue.Enqueue(string.Format("Cannot Revive When {0} is still alive", Name));
             }
         }
 
@@ -145,7 +186,7 @@ namespace TextRPG
             info[0] = string.Format("Name: {0}", Name);
             info[1] = string.Format("   -HealthPoints:({0}/{1})", _healthPoints, HEALTH_POINT_MAX);
             info[2] = string.Format("   -Dexterity:{0,-10}", _dexterity);
-            info[3] = string.Format("   -ArmorClass:{0,-10}", _dexterity);
+            info[3] = string.Format("   -ArmorClass:{0,-10}", _armorClass);
             info[4] = string.Format("   -Exp:{0,-10}", _experience);
             info[5] = hStatus;
             return info;

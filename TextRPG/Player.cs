@@ -59,6 +59,12 @@ namespace TextRPG
                 return;
             }
 
+            if (character.IsDead)
+            {
+                Actions.Add(string.Format("{0} is already dead", character.Name));
+                return;
+            }
+
             if (inventory.Get(Item.Type.Bomb) == null)
             {
                 Actions.Add("No Bomb in Inventory");

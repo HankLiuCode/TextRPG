@@ -47,11 +47,6 @@ namespace TextRPG
 
         public void TakeDamage(float damage)
         {
-            if (_healthState == HealthState.Dead)
-            {
-                Actions.Add(string.Format("{0} is already dead", Name));
-                return;
-            }
             _healthPoints -= damage;
             _healthState = HealthState.Injured;
             Actions.Add(string.Format("{0} Took: {1} Damage", Name, damage));
@@ -63,12 +58,6 @@ namespace TextRPG
 
         public void TakeDamageWithStats(Stats attackerStats)
         {
-            if (_healthState == HealthState.Dead)
-            {
-                Actions.Add(string.Format("{0} is already dead", Name));
-                return;
-            }
-
             bool canTakeDamage = (attackerStats.dexerity / _stats.dexerity + attackerStats.accuracy) > ATTACK_SUCCESSFUL_THRESHOLD;
             float damage = MathF.Max(attackerStats.strength * STRENGTH_MULTIPLIER - attackerStats.armorClass * ARMOR_MULTILIER, 1f);
             if (canTakeDamage)
@@ -83,8 +72,16 @@ namespace TextRPG
 
         public virtual void Attack(Character character)
         {
-            if (_healthState == HealthState.Dead)
+            if (IsDead)
+            {
+                Actions.Add(string.Format("{0} is dead, cannot Attack", Name));
                 return;
+            }
+            if (character.IsDead)
+            {
+                Actions.Add(string.Format("{0} is already dead", character.Name));
+                return;
+            }
 
             character.TakeDamageWithStats(_stats);
             Actions.Add(string.Format("{0} Attacked {1}", Name, character.Name));

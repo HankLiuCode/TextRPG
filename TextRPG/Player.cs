@@ -4,102 +4,78 @@ using TextRPG.Utils;
 
 namespace TextRPG
 {
-    public class Player
+    public class Player : Character
     {
-        private RPGRandom random;
-
-        private const float STRENGTH_MAX = 20f;
-        private const float STRENGTH_MIN = 16f;
-        private const float DEX_MAX = 10f;
-        private const float DEX_MIN = 8f;
-        private const float ACCURACY_MAX = 0.5f;
-        private const float ACCURACY_MIN = 0f;
-
         private const float BOMB_DAMAGE = 30f;
-
-        private float strength;
-        private float dexterity;
-        private float accuracy;
-        private float experience;
-
+        private float _experience;
         private Inventory inventory;
-        
-        public Queue<string> ActionQueue;
 
-        public Player()
+        public Player(string name) : base(name)
         {
-            random = new RPGRandom();
-            strength = random.NextFloat(STRENGTH_MIN, STRENGTH_MAX);
-            dexterity = random.NextFloat(DEX_MIN, DEX_MAX);
-            accuracy = random.NextFloat(ACCURACY_MIN, ACCURACY_MAX);
             inventory = new Inventory();
-            ActionQueue = new Queue<string>();
-            experience = 0f;
+            inventory.InventoryFull += Inventory_InventoryFull;
+            _stats = new Stats();
+            _stats.GenerateRandom();
+            _experience = 0f;
+        }
+
+        private void Inventory_InventoryFull(Item item)
+        {
+            Actions.Add(string.Format("Inventory Full, {0} is discarded", item.ItemType));
+        }
+
+        public override void Attack(Character character)
+        {
+            base.Attack(character);
+            
         }
 
         public void Loot(Monster monster)
         {
-            experience += monster.TakeExperience();
-            int[] items = monster.Loot();
-            inventory.AddToEmptySlots(items, ActionQueue);
-            ActionQueue.Enqueue(string.Format("Player Experience: " + experience));
+            Loot loot = monster.GetLoot();
+            AddExperience(loot.Experience);
+            AddLootToInventory(loot.Items);
+
         }
 
-        public string[] GetActions()
+        public void AddLootToInventory(Item[] items)
         {
-            string[] actions = ActionQueue.ToArray();
-            ActionQueue.Clear();
-            return actions;
-        }
-
-
-        public void Attack(Monster monster)
-        {
-            bool success = monster.TryTakeDamage(dexterity, accuracy, strength);
-            if (success)
+            for(int i = 0; i < items.Length; i++)
             {
-                if (monster.IsDead)
-                {
-                    Loot(monster);
-                }
+                inventory.Add(items[i]);
             }
         }
 
-        public void BombAttack(Monster monster)
+        public void AddExperience(float exp)
         {
-            if (inventory.GetItem() == -1)
+            _experience += exp;
+        }
+
+        public void BombAttack(Character character)
+        {
+            if (IsDead)
             {
-                ActionQueue.Enqueue(string.Format("Inventory is Empty"));
+                Actions.Add(string.Format("{0} is dead, cannot Attack", Name));
                 return;
             }
 
-            if (monster.IsDead)
+            if (inventory.Get(Item.Type.Bomb) == null)
             {
-                ActionQueue.Enqueue(string.Format("{0} is already dead", monster.Name));
+                Actions.Add("No Bomb in Inventory");
                 return;
             }
 
-            monster.TakeDamage(BOMB_DAMAGE);
-            if (monster.IsDead)
+            character.TakeDamage(BOMB_DAMAGE);
+            Actions.Add(string.Format("{0} Attack {1}",Name, character.Name));
+            if (character.IsDead && character is ILootable)
             {
-                Loot(monster);
+                ((ILootable)character).GetLoot();
             }
         }
 
-        public string[] GetInfo()
+        public string[] InventorySummary()
         {
-            string[] info = new string[5];
-            info[0] = "";
-            info[1] = string.Format("   -Strength:{0,-10}", strength);
-            info[2] = string.Format("   -Dexterity:{0,-10}", dexterity);
-            info[3] = string.Format("   -Accuracy:{0,-10}", accuracy);
-            info[4] = string.Format("   -Exp: {0,-10}", experience);
-            return info;
-        }
-
-        public string[] GetInventoryInfo()
-        {
-            return inventory.GetInfo();
+            return inventory.Summary();
         }
     }
 }

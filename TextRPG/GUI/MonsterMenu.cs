@@ -5,24 +5,23 @@ namespace TextRPG.GUI
 {
     class MonsterMenu : Window
     {
-        MonsterManager _monsterManager;
-        public MonsterMenu(int width, int height, MonsterManager monsterManager) : base(width, height)
+        public MonsterMenu(int width, int height) : base(width, height)
         {
-            _monsterManager = monsterManager;
+
         }
 
         public void AddOptionsToBuffer()
         {
             AddToOutputBuffer("(0) Back to Menu");
             AddNewLine();
-            AddToOutputBuffer(_monsterManager.GetOptions());
+            AddToOutputBuffer(MonsterManager.GetOptions());
             AddBorder();
         }
         public override void Show()
         {
             ConsoleKeyInfo keyInfo;
             AddOptionsToBuffer();
-            Render(0,0);
+            Render(DEFAULT_START_POS_Y, DEFAULT_START_POS_Y);
 
             while (true)
             {
@@ -36,15 +35,15 @@ namespace TextRPG.GUI
                 if (char.IsDigit(keyInfo.KeyChar))
                 {
                     int index = int.Parse(keyInfo.KeyChar.ToString());
-                    _monsterManager.ChooseMonster(index - 1);
-                    AddToOutputBuffer(_monsterManager.CurrentMonsterInfo());
+                    MonsterManager.ChooseMonster(index - 1);
+                    AddToOutputBuffer(MonsterManager.CurrentMonsterInfo());
                 }
                 else
                 {
                     AddToOutputBuffer("Invalid Input");
                 }
 
-                Render(0, 0);
+                Render(DEFAULT_START_POS_Y, DEFAULT_START_POS_Y);
             }
 
         }

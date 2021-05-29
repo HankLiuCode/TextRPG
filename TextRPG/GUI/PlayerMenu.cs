@@ -22,7 +22,7 @@ namespace TextRPG.GUI
         {
             ConsoleKeyInfo keyInfo;
             AddOptionsToBuffer();
-            Render(0, 0);
+            Render(DEFAULT_START_POS_Y, DEFAULT_START_POS_Y);
 
             while (true)
             {
@@ -36,11 +36,11 @@ namespace TextRPG.GUI
 
                 if (keyInfo.Key == ConsoleKey.D1)
                 {
-                    AddToOutputBuffer(_player.GetInfo());
+                    AddToOutputBuffer(_player.Summary());
                 }
                 else if (keyInfo.Key == ConsoleKey.D2)
                 {
-                    AddToOutputBuffer(_player.GetInventoryInfo());
+                    AddToOutputBuffer(_player.InventorySummary());
                 }
                 else if (keyInfo.Key == ConsoleKey.D0)
                 {
@@ -51,7 +51,7 @@ namespace TextRPG.GUI
                     AddToOutputBuffer("Not a valid input.");
                 }
 
-                Render(0, 0);
+                Render(DEFAULT_START_POS_Y, DEFAULT_START_POS_Y);
             }
         }
     }

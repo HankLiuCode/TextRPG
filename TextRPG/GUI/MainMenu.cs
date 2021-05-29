@@ -6,21 +6,19 @@ namespace TextRPG.GUI
     class MainMenu : Window
     {
         private MonsterMenu _monsterMenu;
-        private MonsterManager _monsterManager;
 
         private PlayerMenu _playerMenu;
         private CombatMenu _combatMenu;
-        public MainMenu(int width, int height, MonsterMenu monsterMenu, MonsterManager monsterManager, PlayerMenu playerMenu, CombatMenu combatMenu) : base(width, height)
+        public MainMenu(int width, int height, MonsterMenu monsterMenu, PlayerMenu playerMenu, CombatMenu combatMenu) : base(width, height)
         {
             _monsterMenu = monsterMenu;
-            _monsterManager = monsterManager;
             _playerMenu = playerMenu;
             _combatMenu = combatMenu;
         }
 
         public void AddOptionsToBuffer()
         {
-            AddToOutputBuffer(string.Format("Current Monster:  {0}", _monsterManager.CurrentMonster.Name));
+            AddToOutputBuffer(string.Format("Current Monster:  {0}", MonsterManager.CurrentMonster.Name));
             AddToOutputBuffer("(1)Player Info  (2)Combat  (3)Choose Monster  (4)Revive Monster  (q)Quit");
             AddNewLine(2);
             AddBorder();
@@ -30,7 +28,7 @@ namespace TextRPG.GUI
         {
             ConsoleKeyInfo keyInfo;
             AddOptionsToBuffer();
-            Render(0, 0);
+            Render(DEFAULT_START_POS_X, DEFAULT_START_POS_Y);
 
             while (true)
             {
@@ -55,14 +53,14 @@ namespace TextRPG.GUI
                 else if (keyInfo.Key == ConsoleKey.D4)
                 {
                     AddOptionsToBuffer();
-                    _monsterManager.CurrentMonster.Revive();
-                    AddToOutputBuffer(_monsterManager.CurrentMonster.GetActions());
+                    MonsterManager.CurrentMonster.Revive();
+                    AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
                 }
                 else if (keyInfo.Key == ConsoleKey.Q)
                 {
                     AddToOutputBuffer("GoodBye Fellow Hero.");
                     AddToOutputBuffer("See you again soon.");
-                    Render(0, 0);
+                    Render(DEFAULT_START_POS_Y, DEFAULT_START_POS_Y);
                     break;
                 }
                 else
@@ -70,7 +68,7 @@ namespace TextRPG.GUI
                     AddOptionsToBuffer();
                     AddToOutputBuffer("Not a valid input.");
                 }
-                Render(0, 0);
+                Render(DEFAULT_START_POS_Y, DEFAULT_START_POS_Y);
             }
         }
     }

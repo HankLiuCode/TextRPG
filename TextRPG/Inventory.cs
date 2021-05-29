@@ -6,62 +6,53 @@ namespace TextRPG
 {
     class Inventory
     {
-        private int[] slots;
+        private int _maxSlots = 10;
+        private List<Item> slots;
+        public event Action<Item> InventoryFull;
+
         public Inventory()
         {
-            slots = new int[10] { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 };
+            slots = new List<Item>(_maxSlots);
         }
 
-        public int GetItem()
+        public void Add(Item item)
         {
-            int item = -1;
-            for (int i = 0; i < slots.Length; i++)
+            if (slots.Count >= _maxSlots)
             {
-                if (slots[i] != 0)
-                {
-                    item = slots[i];
-                    slots[i] = 0;
-                    break;
-                }
+                InventoryFull.Invoke(item);
+                return;
             }
+            slots.Add(item);
+
+        }
+
+        public void Remove(Item item)
+        {
+            slots.Remove(item);
+        }
+
+        public Item Get(Item.Type itemType)
+        {
+            Item item = slots.Find((Item item) => item.ItemType == itemType);
 
             return item;
         }
 
-        public void AddToEmptySlots(int[] items, Queue<string> actionQueue)
+        public string[] Summary()
         {
-            int j = 0;
-            for (int i = 0; i < slots.Length; i++)
+            string[] info = new string[_maxSlots];
+            for(int i=0; i < _maxSlots; i++)
             {
-                if (slots[i] != 0)
-                    continue;
-                if (j >= items.Length)
-                    break;
-                slots[i] = items[j];
-                actionQueue.Enqueue(string.Format("Added {0} to Inventory", GetName(items[j])));
-                j++;
-            }
-
-            for (int i = j; i < items.Length; i++)
-            {
-                actionQueue.Enqueue(string.Format("Inventory is full {0} is discarded", GetName(items[j])));
-            }
-        }
-
-        public string[] GetInfo()
-        {
-            string[] info = new string[slots.Length];
-            for(int i=0; i < info.Length; i++)
-            {
-                info[i] = string.Format("({0}) {1}", i, GetName(slots[i]));
+                if(i < slots.Count && slots[i] != null)
+                {
+                    info[i] = string.Format("({0}) {1}", i, slots[i].ItemType);
+                }
+                else
+                {
+                    info[i] = string.Format("({0}) {1}", i, "");
+                }
             }
             return info;
         }
-
-        public string GetName(int id)
-        {
-            return Enum.GetName(typeof(ItemType), id);
-        }
-
     }
 }

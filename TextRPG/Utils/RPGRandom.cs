@@ -2,16 +2,16 @@
 
 namespace TextRPG.Utils
 {
-    class RPGRandom
+    public static class RPGRandom
     {
-        private Random random;
+        private static Random random;
 
-        public RPGRandom()
+        static RPGRandom()
         {
             random = new Random();
         }
 
-        public float NextFloat(float min, float max)
+        public static float NextFloat(float min, float max)
         {
             if (min > max) 
                 throw new ArgumentException("min > max", "min cannot be larger than max");
@@ -20,7 +20,7 @@ namespace TextRPG.Utils
             return result;
         }
 
-        public string PickFrom(string[] strings)
+        public static string PickFrom(string[] strings)
         {
             int index = random.Next(0, strings.Length);
             return strings[index];

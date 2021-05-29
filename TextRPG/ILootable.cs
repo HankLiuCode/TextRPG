@@ -4,8 +4,8 @@ using System.Text;
 
 namespace TextRPG
 {
-    enum ItemType
+    interface ILootable
     {
-        Bomb = 1,
+        Loot GetLoot();
     }
 }

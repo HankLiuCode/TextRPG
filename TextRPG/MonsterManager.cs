@@ -4,19 +4,20 @@ using System.Text;
 
 namespace TextRPG
 {
-    public class MonsterManager
+    public static class MonsterManager
     {
-        public Monster CurrentMonster {
+        public static Monster CurrentMonster {
             get
             {
                 return monsters[currentMonsterIndex];
             }
         }
-        private List<Monster> monsters;
-        private int currentMonsterIndex;
+        private static List<Monster> monsters;
+        private static int currentMonsterIndex;
 
-        public MonsterManager()
+        static MonsterManager()
         {
+
             monsters = new List<Monster>();
 
             for(int i = 0; i < 8; i++)
@@ -26,7 +27,7 @@ namespace TextRPG
             currentMonsterIndex = 0;
         }
 
-        public void ChooseMonster(int index)
+        public static void ChooseMonster(int index)
         {
             if (index < monsters.Count && index > -1)
             {
@@ -34,24 +35,24 @@ namespace TextRPG
             }
         }
 
-        public string[] CurrentMonsterInfo()
-        { 
-            return monsters[currentMonsterIndex].GetInfo();
+        public static string[] CurrentMonsterInfo()
+        {
+            return monsters[currentMonsterIndex].Summary();
         }
 
-        public void SpawnMonster(string name)
+        public static void SpawnMonster(string name)
         {
             Monster m = new Monster(name);
             m.Died += M_Died;
             monsters.Add(m);
         }
 
-        private void M_Died(object sender, EventArgs e)
+        private static void M_Died(object sender, EventArgs e)
         {
             
         }
 
-        public string[] GetOptions()
+        public static string[] GetOptions()
         {
             string[] options = new string[monsters.Count];
             for(int i=0; i<options.Length; i++)

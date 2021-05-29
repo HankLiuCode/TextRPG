@@ -6,6 +6,9 @@ namespace TextRPG.Graphics
 {
     public abstract class Window
     {
+        public const int DEFAULT_START_POS_X = 0;
+        public const int DEFAULT_START_POS_Y = 0;
+
         protected int _width;
         protected int _height;
         protected bool _hidePressedKey;

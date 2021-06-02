@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TextRPG.Utils;
 
 
@@ -13,21 +14,14 @@ namespace TextRPG
         public Player(string name) : base(name)
         {
             inventory = new Inventory();
-            inventory.InventoryFull += Inventory_InventoryFull;
-            _stats = new Stats();
-            _stats.GenerateRandom();
+            Stats = new CharacterStats();
+            Stats.GenerateRandom();
             _experience = 0f;
-        }
-
-        private void Inventory_InventoryFull(Item item)
-        {
-            Actions.Add(string.Format("Inventory Full, {0} is discarded", item.ItemType));
         }
 
         public override void Attack(Character character)
         {
             base.Attack(character);
-            
         }
 
         public void Loot(Monster monster)
@@ -51,32 +45,13 @@ namespace TextRPG
             _experience += exp;
         }
 
-        public void BombAttack(Character character)
+        public void BombAttack(Character victim)
         {
-            if (IsDead)
-            {
-                Actions.Add(string.Format("{0} is dead, cannot Attack", Name));
-                return;
-            }
+            bool success = inventory.Get(Item.Type.Bomb) != null;
+            float damage = 30;
+            victim.ModifyHealth(-damage);
 
-            if (character.IsDead)
-            {
-                Actions.Add(string.Format("{0} is already dead", character.Name));
-                return;
-            }
-
-            if (inventory.Get(Item.Type.Bomb) == null)
-            {
-                Actions.Add("No Bomb in Inventory");
-                return;
-            }
-
-            character.TakeDamage(BOMB_DAMAGE);
-            Actions.Add(string.Format("{0} Attack {1}",Name, character.Name));
-            if (character.IsDead && character is ILootable)
-            {
-                ((ILootable)character).GetLoot();
-            }
+            InvokeAttackHappened(this, new AttackEventArgs(damage, success, this, victim, AttackType.BombAttack));
         }
 
         public string[] InventorySummary()

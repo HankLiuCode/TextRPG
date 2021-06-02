@@ -6,6 +6,29 @@ using TextRPG.Utils;
 namespace TextRPG
 {
 
+    public enum AttackType
+    {
+        NormalAttack,
+        BombAttack
+    }
+
+    public class AttackEventArgs: EventArgs
+    {
+        public AttackType attackType;
+        public float damage;
+        public bool success;
+        public Character attacker;
+        public Character victim;
+        public AttackEventArgs(float damage, bool success, Character attacker, Character victim, AttackType attackType = AttackType.NormalAttack)
+        {
+            this.damage = damage;
+            this.success = success;
+            this.attacker = attacker;
+            this.victim = victim;
+            this.attackType = attackType;
+        }
+    }
+
     public abstract class Character
     {
         public float ATTACK_SUCCESSFUL_THRESHOLD = 1.5f;
@@ -21,11 +44,9 @@ namespace TextRPG
         }
         protected HealthState _healthState;
        
-        protected Stats _stats;
-        protected float _healthPoints;
-
+        public CharacterStats Stats { get; protected set; }
+        public float HealthPoints { get; private set; }
         public string Name { get; private set; }
-        public List<string> Actions { get; private set; }
 
         public bool IsDead
         {
@@ -36,85 +57,71 @@ namespace TextRPG
                 return false;
             }
         }
-        public event EventHandler Died;
+
+        
+        public event EventHandler DiedHappened;
+        public event EventHandler<AttackEventArgs> AttackHappened;
 
         public Character(string name)
         {
-            Actions = new List<string>();
-            _healthPoints = MAX_HEALTH;
+            HealthPoints = MAX_HEALTH;
             Name = name;
         }
 
-        public void TakeDamage(float damage)
+        public void ModifyHealth(float amount)
         {
-            _healthPoints -= damage;
-            _healthState = HealthState.Injured;
-            Actions.Add(string.Format("{0} Took: {1} Damage", Name, damage));
-
-            if (_healthPoints <= 0)
-                Die();
-            Actions.Add(string.Format("Health: ({0}/{1}) ", _healthPoints, MAX_HEALTH));
-        }
-
-        public void TakeDamageWithStats(Stats attackerStats)
-        {
-            bool canTakeDamage = (attackerStats.dexerity / _stats.dexerity + attackerStats.accuracy) > ATTACK_SUCCESSFUL_THRESHOLD;
-            float damage = MathF.Max(attackerStats.strength * STRENGTH_MULTIPLIER - attackerStats.armorClass * ARMOR_MULTILIER, 1f);
-            if (canTakeDamage)
+            HealthPoints += amount;
+            if(HealthPoints >= MAX_HEALTH)
             {
-                TakeDamage(damage);
+                _healthState = HealthState.FullHealth;
+                HealthPoints = MAX_HEALTH;
+            }
+            else if(HealthPoints <= 0)
+            {
+                _healthState = HealthState.Dead;
+                HealthPoints = 0;
             }
             else
             {
-                Actions.Add(string.Format("Missed!"));
+                _healthState = HealthState.Injured;
             }
+            if (HealthPoints <= 0)
+                Die();
         }
 
-        public virtual void Attack(Character character)
+        public virtual void Attack(Character victim)
         {
-            if (IsDead)
-            {
-                Actions.Add(string.Format("{0} is dead, cannot Attack", Name));
-                return;
-            }
-            if (character.IsDead)
-            {
-                Actions.Add(string.Format("{0} is already dead", character.Name));
-                return;
-            }
+            bool success = (Stats.dexerity / victim.Stats.dexerity + Stats.accuracy) > ATTACK_SUCCESSFUL_THRESHOLD;
+            float damage = MathF.Max(Stats.strength * STRENGTH_MULTIPLIER - victim.Stats.armorClass * ARMOR_MULTILIER, 1f);
 
-            character.TakeDamageWithStats(_stats);
-            Actions.Add(string.Format("{0} Attacked {1}", Name, character.Name));
+            if (!success)
+                victim.ModifyHealth(-damage);
+
+            AttackHappened?.Invoke(this, new AttackEventArgs(damage, success, this, victim));
         }
 
-        public string[] GetActions(bool clear)
+        protected void InvokeAttackHappened(object sender, AttackEventArgs attackEventArgs)
         {
-            string[] actions = Actions.ToArray();
-            if (clear)
-                Actions.Clear();
-            return actions;
+            AttackHappened?.Invoke(sender, attackEventArgs);
         }
 
         public void Die()
         {
-            _healthState = HealthState.Dead;
-            _healthPoints = 0;
             OnDied();
-            Actions.Add(string.Format("{0} is Dead", Name));
         }
 
         private void OnDied()
         {
-            EventHandler handler = Died;
+            EventHandler handler = DiedHappened;
             handler?.Invoke(this, EventArgs.Empty);
         }
     
         public string[] Summary()
         {
-            string[] statSummary = _stats.Summary();
+            string[] statSummary = Stats.Summary();
             string[] info = new string[statSummary.Length + 3];
             info[0] = string.Format("Name: {0}", Name);
-            info[1] = string.Format("Health: ({0}/{1})", _healthPoints, MAX_HEALTH);
+            info[1] = string.Format("Health: ({0}/{1})", HealthPoints, MAX_HEALTH);
 
             for(int i=0; i < statSummary.Length; i++)
             {

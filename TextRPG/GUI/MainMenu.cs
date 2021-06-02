@@ -3,7 +3,7 @@ using TextRPG.Graphics;
 
 namespace TextRPG.GUI
 {
-    class MainMenu : Window
+    class MainMenu : BadWindow
     {
         private MonsterMenu _monsterMenu;
 
@@ -54,7 +54,7 @@ namespace TextRPG.GUI
                 {
                     AddOptionsToBuffer();
                     MonsterManager.CurrentMonster.Revive();
-                    AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
+                    //AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
                 }
                 else if (keyInfo.Key == ConsoleKey.Q)
                 {

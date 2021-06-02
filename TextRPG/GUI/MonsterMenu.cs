@@ -3,7 +3,7 @@ using TextRPG.Graphics;
 
 namespace TextRPG.GUI
 {
-    class MonsterMenu : Window
+    class MonsterMenu : BadWindow
     {
         public MonsterMenu(int width, int height) : base(width, height)
         {

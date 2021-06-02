@@ -3,7 +3,7 @@ using TextRPG.Graphics;
 
 namespace TextRPG.GUI
 {
-    class PlayerMenu : Window
+    class PlayerMenu : BadWindow
     {
         private Player _player;
         public PlayerMenu(int width, int height, Player player) : base(width, height)

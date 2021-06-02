@@ -4,101 +4,114 @@ using System.Text;
 
 namespace TextRPG.Graphics
 {
-    public abstract class Window
+    public struct Vector2
     {
-        public const int DEFAULT_START_POS_X = 0;
-        public const int DEFAULT_START_POS_Y = 0;
-
-        protected int _width;
-        protected int _height;
-        protected bool _hidePressedKey;
-        private List<string> _outputBuffer;
-
-        public Window(int width, int height, bool hidePressedKey = true)
+        public int x;
+        public int y;
+        public Vector2(int x, int y)
         {
-            _width = width;
-            _height = height;
-            _hidePressedKey = hidePressedKey;
-            _outputBuffer = new List<string>();
-            Console.CursorVisible = false;
+            this.x = x;
+            this.y = y;
         }
+    }
+    class Window
+    {
+        public Vector2 Position { get; set; }
+        public Vector2 Rect { get; set; }
 
-        protected void Render(int cursorX, int cursorY)
-        {
-            Render(FlushOutputBuffer(), cursorX, cursorY);
-        }
-        
-        protected void Render(string[] renderString, int cursorX, int cursorY)
-        {
-            Console.SetCursorPosition(cursorX, cursorY);
+        //public int RenderOrder { get; set; }
+        public bool HasBorder { get; private set; }
+        public bool IsVisible { get; private set; }
 
-            string boldHBorder = new string('=', _width);
-            string hBorder = new string('-', _width);
-            string emptyLine = "|" + new string(' ', _width - 2) + "|";
-            int cursorPositionY = 0;
+        private char top;
+        private char side;
 
-            
-            Console.WriteLine(boldHBorder);
-            Console.WriteLine(emptyLine);
-            cursorPositionY += 2;
-
-            string targetFormatString = "|"+ "{0," + -(_width - 2) + "}" + "|";
-
-            for(int i=0; i < renderString.Length; i++)
+        private List<string> _buffer = new List<string>();
+        public List<string> Buffer { 
+            get 
             {
-                if (cursorPositionY > _height - 1)
-                    break;
-                string resultString = string.Format(targetFormatString, renderString[i]);
-                Console.WriteLine(resultString);
-                cursorPositionY += 1;
-            }
-
-            for(int i=cursorPositionY; i<_height - 1; i++)
-            {
-                Console.WriteLine(emptyLine);
-            }
-            Console.WriteLine(hBorder);
-        }
-
-        protected void AddBorder()
-        {
-            string boldHBorder = new string('=', _width - 2);
-            AddToOutputBuffer(boldHBorder);
-        }
-
-        protected void AddNewLine(int count = 1)
-        {
-            for(int i = 0; i < count; i++)
-            {
-                AddToOutputBuffer("");
+                return HasBorder ? BufferWithBorder(_buffer) : _buffer;
             }
         }
 
-        protected void InsertIntoOutputBuffer(int index, string output)
+        public Window(Vector2 position, Vector2 rect, bool hasBorder = true, bool isVisible = true)
         {
-            _outputBuffer.Insert(index, output);
+            Position = position;
+            Rect = rect;
+            IsVisible = isVisible;
+            HasBorder = hasBorder;
+            _buffer = new List<string>();
         }
 
-        protected void AddToOutputBuffer(string output)
+        public void Write(string targetString)
         {
-            _outputBuffer.Add(output);
+            _buffer.Add(targetString);
         }
 
-        protected void AddToOutputBuffer(string[] output)
+        public void Write(string[] targetStrings)
         {
-            for(int i = 0; i < output.Length; i++)
+            foreach(string s in targetStrings)
             {
-                AddToOutputBuffer(output[i]);
+                Write(s);
             }
         }
 
-        protected string[] FlushOutputBuffer()
+        public void Clear()
         {
-            string[] arr = _outputBuffer.ToArray();
-            _outputBuffer.Clear();
-            return arr;
+            _buffer.Clear();
         }
 
-        public abstract void Show();
+        public void Hide()
+        {
+            IsVisible = false;
+        }
+
+        public void Show()
+        {
+            IsVisible = true;
+        }
+
+        public void SetBorder(char top, char side)
+        {
+            this.top = top;
+            this.side = side;
+            HasBorder = true;
+        }
+
+        public void RemoveBorder()
+        {
+            HasBorder = false;
+        }
+
+        private List<string> BufferWithBorder(List<string> buffer)
+        {
+            List<string> tempBuffer = new List<string>();
+            tempBuffer.Add(new string('=', Rect.x));
+            for (int i = 0; i < Rect.y - 2; i++)
+            {
+                if (i < buffer.Count)
+                {
+                    string tempStr = buffer[i];
+                    if (tempStr.Length > Rect.x - 2)
+                    {
+                        tempStr = tempStr.Remove(Rect.x - 2, tempStr.Length - (Rect.x - 2));
+                    }
+                    else if (tempStr.Length < Rect.x - 2)
+                    {
+                        tempStr = tempStr + new string(' ', (Rect.x - 2) - tempStr.Length);
+                    }
+                    tempStr = "|" + tempStr + "|";
+
+                    tempBuffer.Add(tempStr);
+                }
+                else
+                {
+                    tempBuffer.Add("|" + new string(' ', Rect.x - 2) + "|");
+                }
+            }
+            tempBuffer.Add(new string('=', Rect.x));
+
+            return tempBuffer;
+        }
     }
 }

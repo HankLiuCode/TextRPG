@@ -3,7 +3,7 @@ using TextRPG.Graphics;
 
 namespace TextRPG.GUI
 {
-    class CombatMenu : Window
+    class CombatMenu : BadWindow
     {
         private Player _player;
 
@@ -41,21 +41,21 @@ namespace TextRPG.GUI
 
                 if (keyInfo.Key == ConsoleKey.D1)
                 {
-                    _player.Attack(MonsterManager.CurrentMonster);
-                    AddToOutputBuffer(_player.GetActions(true));
-                    AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
-                    MonsterManager.CurrentMonster.Attack(_player);
-                    AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
-                    AddToOutputBuffer(_player.GetActions(true));
+                    //_player.Attack(MonsterManager.CurrentMonster);
+                    //AddToOutputBuffer(_player.GetActions(true));
+                    //AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
+                    //MonsterManager.CurrentMonster.Attack(_player);
+                    //AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
+                    //AddToOutputBuffer(_player.GetActions(true));
                 }
                 else if (keyInfo.Key == ConsoleKey.D2)
                 {
-                    _player.BombAttack(MonsterManager.CurrentMonster);
-                    AddToOutputBuffer(_player.GetActions(true));
-                    AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
-                    MonsterManager.CurrentMonster.Attack(_player);
-                    AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
-                    AddToOutputBuffer(_player.GetActions(true));
+                    //_player.BombAttack(MonsterManager.CurrentMonster);
+                    //AddToOutputBuffer(_player.GetActions(true));
+                    //AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
+                    //MonsterManager.CurrentMonster.Attack(_player);
+                    //AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
+                    //AddToOutputBuffer(_player.GetActions(true));
                 }
                 else if (keyInfo.Key == ConsoleKey.D0)
                 {

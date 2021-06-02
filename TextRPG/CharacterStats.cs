@@ -2,7 +2,7 @@
 
 namespace TextRPG
 {
-    public struct Stats
+    public struct CharacterStats
     {
         private const float ARMOR_CLASS_MAX = 10f;
         private const float ARMOR_CLASS_MIN = 5f;
@@ -18,7 +18,7 @@ namespace TextRPG
         public float dexerity;
         public float accuracy;
 
-        public Stats(float armorClass, float strength, float dexerity, float accuracy)
+        public CharacterStats(float armorClass, float strength, float dexerity, float accuracy)
         {
             this.armorClass = armorClass;
             this.strength = strength;

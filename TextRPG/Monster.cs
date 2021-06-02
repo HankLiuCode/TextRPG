@@ -4,23 +4,28 @@ using TextRPG.Utils;
 
 namespace TextRPG
 {
+    public class ReviveEventArgs
+    {
+        public bool revive;
+        public ReviveEventArgs(bool revive)
+        {
+            this.revive = revive;
+        }
+    }
     public class Monster : Character, ILootable
     {
-        private const float ARMOR_CLASS = 10f;
-        private const float STRENGTH = 16f;
-        private const float DEXERITY = 10f;
-        private const float ACCURACY = 0.5f;
-
         public const byte STUNNED_MASK = 0b_0000_0001;
         public const byte POISONED_MASK = 0b_0000_0010;
 
         private byte _buffStatus;
         private Loot _loot;
 
+        public event EventHandler<ReviveEventArgs> ReviveHappened;
+
         public Monster(string name) : base(name)
         {
-            _stats = new Stats();
-            _stats.GenerateRandom();
+            Stats = new CharacterStats();
+            Stats.GenerateRandom();
             _loot = Loot.Empty;
         }
 
@@ -48,16 +53,12 @@ namespace TextRPG
 
         public void Revive()
         {
-            if(_healthState == HealthState.Dead)
-            {
-                _healthState = HealthState.FullHealth;
-                _healthPoints = MAX_HEALTH;
-                Actions.Add(string.Format("{0} is revived", Name));
-            }
-            else
-            {
-                Actions.Add(string.Format("Cannot Revive monster that is still alive"));
-            }
+            bool success = _healthState == HealthState.Dead;
+            if(success)
+                ModifyHealth(MAX_HEALTH);
+
+            EventHandler<ReviveEventArgs> eventHandler = ReviveHappened;
+            eventHandler?.Invoke(this, new ReviveEventArgs(success));
         }
     }
 }

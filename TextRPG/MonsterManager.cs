@@ -43,7 +43,7 @@ namespace TextRPG
         public static void SpawnMonster(string name)
         {
             Monster m = new Monster(name);
-            m.Died += M_Died;
+            m.DiedHappened += M_Died;
             monsters.Add(m);
         }
 

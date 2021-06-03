@@ -4,10 +4,8 @@ using System.Text;
 
 namespace TextRPG
 {
-    public enum HealthStatus
+    class InventoryUI
     {
-        FullHealth = 0,
-        HalfHealth = 1,
-        Dead = 2
+
     }
 }

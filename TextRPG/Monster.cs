@@ -1,32 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using TextRPG.Utils;
+﻿using TextRPG.Common;
 
 namespace TextRPG
 {
-    public class ReviveEventArgs
-    {
-        public bool revive;
-        public ReviveEventArgs(bool revive)
-        {
-            this.revive = revive;
-        }
-    }
     public class Monster : Character, ILootable
     {
         public const byte STUNNED_MASK = 0b_0000_0001;
         public const byte POISONED_MASK = 0b_0000_0010;
-
         private byte _buffStatus;
         private Loot _loot;
 
-        public event EventHandler<ReviveEventArgs> ReviveHappened;
-
-        public Monster(string name) : base(name)
+        public Monster(string name, char symbol, Vector2 position, Stats stats) : base(name,symbol,position,stats)
         {
-            Stats = new CharacterStats();
-            Stats.GenerateRandom();
-            _loot = Loot.Empty;
+
         }
 
         public bool CheckStatus(byte mask)
@@ -49,16 +34,6 @@ namespace TextRPG
         public Loot GetLoot()
         {
             return _loot;
-        }
-
-        public void Revive()
-        {
-            bool success = _healthState == HealthState.Dead;
-            if(success)
-                ModifyHealth(MAX_HEALTH);
-
-            EventHandler<ReviveEventArgs> eventHandler = ReviveHappened;
-            eventHandler?.Invoke(this, new ReviveEventArgs(success));
         }
     }
 }

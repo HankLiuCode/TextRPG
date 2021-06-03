@@ -7,6 +7,8 @@ namespace TextRPG.Common {
     {
         public readonly int x;
         public readonly int y;
+
+        public static Vector2 operator -(Vector2 a) => new Vector2(-a.x, -a.y);
         public static Vector2 operator -(Vector2 a, Vector2 b) => new Vector2(a.x - b.x, a.y - b.y);
         public static Vector2 operator +(Vector2 a, Vector2 b) => new Vector2(a.x + b.x, a.y + b.y);
         public static Vector2 operator *(Vector2 a, int b) => new Vector2(a.x * b, a.y * b);
@@ -20,6 +22,8 @@ namespace TextRPG.Common {
         public static Vector2 Down{ get {return new Vector2(0, 1); } }
         public static Vector2 Left { get { return new Vector2(-1, 0); } }
         public static Vector2 Right { get { return new Vector2(1, 0); } }
+
+        public static Vector2 One { get { return new Vector2(1, 1); } }
 
         public Vector2(int x, int y)
         {

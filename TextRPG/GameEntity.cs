@@ -38,7 +38,8 @@ namespace TextRPG
     {
         public event EventHandler<OnMoveEventArgs> OnMove;
         public event EventHandler<OnDestroyEventArgs> OnDestroy;
-        string name;
+        public bool IsActive { get; private set; }
+        public string name;
         char symbol;
         public Vector2 Position { get; private set; }
 
@@ -47,10 +48,14 @@ namespace TextRPG
             this.name = name;
             this.symbol = symbol;
             Position = position;
+
+            //has to call map.Bind(this) in order to work
+            IsActive = true;
         }
 
         public void Destroy(GameEntity gameEntity)
         {
+            IsActive = false;
             if (OnDestroy != null) OnDestroy.Invoke(this, new OnDestroyEventArgs(Position, symbol, name));
         }
 

@@ -20,6 +20,14 @@ namespace TextRPG.Graphics
             renderList.Add(window);
         }
 
+        public static void AddWindows(Window[] windows)
+        {
+            foreach(Window w in windows)
+            {
+                AddWindow(w);
+            }
+        }
+
         public static void RemoveWindow(Window window)
         {
             renderList.Remove(window);

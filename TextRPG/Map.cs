@@ -8,9 +8,21 @@ class Map
     char[,] map;
     char temp;
 
+    public Map(string[] rawMap)
+    {
+        string tempStr = "";
+        foreach (string s in rawMap)
+        {
+            tempStr += s + "\n";
+        }
+
+        map = StringToCharArray(tempStr);
+        temp = '.';
+    }
+
     public Map(string rawMap)
     {
-        this.map = StringToCharArray(rawMap);
+        map = StringToCharArray(rawMap);
         temp = '.';
     }
 
@@ -72,29 +84,49 @@ class Map
 
     public void Move(Vector2 from, Vector2 to)
     {
+        if (from == to || from == -Vector2.One || to == -Vector2.One)
+            return;
+
         char tempChar = temp;
         temp = map[to.x, to.y];
         map[to.x, to.y] = map[from.x, from.y];
         map[from.x, from.y] = tempChar;
     }
 
+
     public string[] GetStateStringArray()
     {
         return CharArrayToStringArray(map);
     }
-
     public char[,] GetStateCharArray()
     {
         return map;
     }
-
-    private static string[] StringToStringArray(string map)
+    public static string[] StringToStringArray(string map)
     {
         string[] lines = map.Split("\n", StringSplitOptions.RemoveEmptyEntries);
         return lines;
     }
-
-    private static char[,] StringToCharArray(string map)
+    public static string[] CharArrayToStringArray(char[,] charArr)
+    {
+        string tempStr = CharArrayToString(charArr);
+        return StringToStringArray(tempStr);
+    }
+    public static string CharArrayToString(char[,] charArr)
+    {
+        string temp = "";
+        for (int j = 0; j < charArr.GetLength(1); j++)
+        {
+            for (int i = 0; i < charArr.GetLength(0); i++)
+            {
+                temp += charArr[i, j];
+            }
+            temp += "\n";
+        }
+        
+        return temp;
+    }
+    public static char[,] StringToCharArray(string map)
     {
         string[] lines = map.Split("\n", StringSplitOptions.RemoveEmptyEntries);
         int width = lines[0].Length;
@@ -111,14 +143,8 @@ class Map
         }
         return cells;
     }
-
-    private static string[] CharArrayToStringArray(char[,] charArr)
-    {
-        string tempStr = CharArrayToString(charArr);
-        return StringToStringArray(tempStr);
-    }
-
-    private static string CharArrayToString(char[,] charArr)
+    
+    public static void PrintMap(char[,] charArr)
     {
         string temp = "";
         for (int j = 0; j < charArr.GetLength(1); j++)
@@ -129,28 +155,8 @@ class Map
             }
             temp += "\n";
         }
-        
-        return temp;
+
+        Console.WriteLine(temp);
     }
-
-
-
-    //public void Render(char[,] map)
-    //{
-    //    Console.SetCursorPosition(0, 0);
-    //    for (int j = 0; j < map.GetLength(1); j++)
-    //    {
-    //        for (int i = 0; i < map.GetLength(0); i++)
-    //        {
-
-    //            Console.BackgroundColor = _colorMapping [map[i, j]].bgColor;
-    //            Console.ForegroundColor = _colorMapping[map[i, j]].color;
-    //            Console.Write(map[i,j]);
-    //        }
-    //        Console.WriteLine();
-    //    }
-    //    Console.BackgroundColor = ConsoleColor.Black;
-    //    Console.ForegroundColor = ConsoleColor.White;
-    //}
 }
 

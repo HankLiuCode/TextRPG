@@ -4,6 +4,22 @@ using System.Text;
 
 namespace TextRPG
 {
+    public class Item
+    {
+        public enum Type
+        {
+            Bomb,
+            HealthPotion,
+            StrengthPotion
+        }
+        public Type ItemType { get; private set; }
+
+        public Item(Type type)
+        {
+            ItemType = type;
+        }
+    }
+
     class Inventory
     {
         private int _maxSlots = 10;
@@ -34,7 +50,6 @@ namespace TextRPG
         public Item Get(Item.Type itemType)
         {
             Item item = slots.Find((Item item) => item.ItemType == itemType);
-
             return item;
         }
 

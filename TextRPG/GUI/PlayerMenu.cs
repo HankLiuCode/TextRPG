@@ -5,8 +5,8 @@ namespace TextRPG.GUI
 {
     class PlayerMenu : BadWindow
     {
-        private Player _player;
-        public PlayerMenu(int width, int height, Player player) : base(width, height)
+        private OldPlayer _player;
+        public PlayerMenu(int width, int height, OldPlayer player) : base(width, height)
         {
             _player = player;
         }

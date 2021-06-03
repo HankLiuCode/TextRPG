@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TextRPG.GUI;
 using TextRPG.Graphics;
 using Newtonsoft.Json;
-
+using TextRPG.Common;
 namespace TextRPG
 {
     
@@ -11,69 +11,65 @@ namespace TextRPG
     {
         public static void Main(string[] args)
         {
+            Window debugWindow = new Window(new Vector2(51, 6), new Vector2(20, 6));
+
+            string rawMap = String.Join("",
+                    "####################\n",
+                    "#@...........,,,,,,#\n",
+                    "#.......m...#,,,,,,#\n",
+                    "#...........#,,,,,,#\n",
+                    "#...........########\n",
+                    "#......#...........#\n",
+                    "#...#.......m......#\n",
+                    "#..................#\n",
+                    "####################\n"
+                    );
+            Map map = new Map(rawMap);
+            Player player = new Player("Player", '@', map.Find('@'));
+
+            map.Bind(player);
+
+            Window gameWindow = new Window(new Vector2(0, 0), new Vector2(50, 30));
+            foreach (string line in map.GetStateStringArray())
+            {
+                gameWindow.Write(line);
+            }
+
+            Renderer.AddWindow(gameWindow);
+            Renderer.AddWindow(debugWindow);
             
-            Window window1 = new Window(new Vector2(1, 1), new Vector2(20, 5));
-            window1.Write("Test11234563142412342");
-            window1.Write("Test23213213124323423421");
-            window1.Write("Test3321312314341241432142");
-
-            Window window2 = new Window(new Vector2(15, 0), new Vector2(10, 5));
-            window2.Write("nTest1");
-            window2.Write("nTest2");
-            window2.Write("nTest3");
-
-            Window window3 = new Window(new Vector2(10, 10), new Vector2(8, 8));
-            window2.Write("nTest1");
-            window2.Write("nTest2");
-            window2.Write("nTest3");
-
-            Renderer.AddWindow(window1);
-            Renderer.AddWindow(window2);
-            Renderer.AddWindow(window3);
-            Renderer.Render();
-
-            ConsoleKeyInfo keyInfo = Console.ReadKey();
+            ConsoleKeyInfo keyInfo;
             while (true)
             {
                 keyInfo = Console.ReadKey(true);
-                if(keyInfo.Key == ConsoleKey.UpArrow)
+
+                if (keyInfo.Key == ConsoleKey.UpArrow)
                 {
-                    window1.Position = new Vector2(window1.Position.x, window1.Position.y - 1);
+                    player.SetPosition(player.Position + Vector2.Up);
                 }
                 else if (keyInfo.Key == ConsoleKey.LeftArrow)
                 {
-                    window1.Position = new Vector2(window1.Position.x - 1, window1.Position.y);
+                    player.SetPosition(player.Position + Vector2.Left);
                 }
                 else if (keyInfo.Key == ConsoleKey.DownArrow)
                 {
-                    window1.Position = new Vector2(window1.Position.x, window1.Position.y + 1);
+                    player.SetPosition(player.Position + Vector2.Down);
                 }
                 else if (keyInfo.Key == ConsoleKey.RightArrow)
                 {
-                    window1.Position = new Vector2(window1.Position.x + 1, window1.Position.y);
+                    player.SetPosition(player.Position + Vector2.Right);
                 }
 
-                if (keyInfo.Key == ConsoleKey.Spacebar)
+                if(keyInfo.Key == ConsoleKey.Enter)
                 {
-                    if (window1.IsVisible)
-                        window1.Hide();
-                    else
-                        window1.Show();
+                    player.TakeDamage(30);
                 }
+
+                gameWindow.Clear();
+                gameWindow.Write(map.GetStateStringArray());
+
                 Renderer.Render();
             }
-
-
-            //Player player = new Player("Player");
-            //MonsterMenu monsterMenu = new MonsterMenu(80, 25);
-            //PlayerMenu playerMenu = new PlayerMenu(80, 25, player);
-            //CombatMenu combatMenu = new CombatMenu(80, 25, player);
-            //MainMenu mainMenu = new MainMenu(80, 25, monsterMenu, playerMenu, combatMenu);
-            //mainMenu.Show();
-
-            //string playerJson = JsonConvert.SerializeObject(player);
-            //Player deserializedObject = (Player)JsonConvert.DeserializeObject(playerJson);
-            //Console.WriteLine(deserializedObject);
         }
     }
 }

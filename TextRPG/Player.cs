@@ -1,62 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using TextRPG.Utils;
-
+using System.Text;
+using TextRPG.Common;
 
 namespace TextRPG
 {
-    public class Player : Character
+    public class Player : GameEntity
     {
-        private const float BOMB_DAMAGE = 30f;
-        private float _experience;
-        private Inventory inventory;
-
-        public Player(string name) : base(name)
+        public float Health { get; private set; }
+        public Player(string name, char symbol, Vector2 position) : base(name, symbol, position)
         {
-            inventory = new Inventory();
-            Stats = new CharacterStats();
-            Stats.GenerateRandom();
-            _experience = 0f;
+            Health = 100f;
         }
 
-        public override void Attack(Character character)
+        public void TakeDamage(float damage)
         {
-            base.Attack(character);
-        }
-
-        public void Loot(Monster monster)
-        {
-            Loot loot = monster.GetLoot();
-            AddExperience(loot.Experience);
-            AddLootToInventory(loot.Items);
-
-        }
-
-        public void AddLootToInventory(Item[] items)
-        {
-            for(int i = 0; i < items.Length; i++)
-            {
-                inventory.Add(items[i]);
-            }
-        }
-
-        public void AddExperience(float exp)
-        {
-            _experience += exp;
-        }
-
-        public void BombAttack(Character victim)
-        {
-            bool success = inventory.Get(Item.Type.Bomb) != null;
-            float damage = 30;
-            victim.ModifyHealth(-damage);
-
-            InvokeAttackHappened(this, new AttackEventArgs(damage, success, this, victim, AttackType.BombAttack));
-        }
-
-        public string[] InventorySummary()
-        {
-            return inventory.Summary();
+            Health -= damage;
+            if (Health <= 0)
+                Destroy(this);
         }
     }
 }

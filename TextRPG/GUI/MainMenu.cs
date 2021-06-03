@@ -18,7 +18,7 @@ namespace TextRPG.GUI
 
         public void AddOptionsToBuffer()
         {
-            AddToOutputBuffer(string.Format("Current Monster:  {0}", MonsterManager.CurrentMonster.Name));
+            AddToOutputBuffer(string.Format("Current Monster:  {0}", OldMonsterManager.CurrentMonster.Name));
             AddToOutputBuffer("(1)Player Info  (2)Combat  (3)Choose Monster  (4)Revive Monster  (q)Quit");
             AddNewLine(2);
             AddBorder();
@@ -53,7 +53,7 @@ namespace TextRPG.GUI
                 else if (keyInfo.Key == ConsoleKey.D4)
                 {
                     AddOptionsToBuffer();
-                    MonsterManager.CurrentMonster.Revive();
+                    OldMonsterManager.CurrentMonster.Revive();
                     //AddToOutputBuffer(MonsterManager.CurrentMonster.GetActions(true));
                 }
                 else if (keyInfo.Key == ConsoleKey.Q)

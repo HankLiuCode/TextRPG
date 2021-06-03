@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TextRPG.Common;
 
 namespace TextRPG.Graphics
 {
-    public struct Vector2
-    {
-        public int x;
-        public int y;
-        public Vector2(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-    }
     class Window
     {
         public Vector2 Position { get; set; }
@@ -34,12 +25,14 @@ namespace TextRPG.Graphics
             }
         }
 
-        public Window(Vector2 position, Vector2 rect, bool hasBorder = true, bool isVisible = true)
+        public Window(Vector2 position, Vector2 rect, bool hasBorder = true, bool isVisible = true, char top = '=', char side='|')
         {
             Position = position;
             Rect = rect;
             IsVisible = isVisible;
             HasBorder = hasBorder;
+            this.top = top;
+            this.side = side;
             _buffer = new List<string>();
         }
 
@@ -54,6 +47,16 @@ namespace TextRPG.Graphics
             {
                 Write(s);
             }
+        }
+
+        public void Write(Vector2 vec2)
+        {
+            Write(vec2.ToString());
+        }
+
+        public void Write(float val)
+        {
+            Write(val.ToString());
         }
 
         public void Clear()
@@ -86,7 +89,7 @@ namespace TextRPG.Graphics
         private List<string> BufferWithBorder(List<string> buffer)
         {
             List<string> tempBuffer = new List<string>();
-            tempBuffer.Add(new string('=', Rect.x));
+            tempBuffer.Add(new string(top, Rect.x));
             for (int i = 0; i < Rect.y - 2; i++)
             {
                 if (i < buffer.Count)
@@ -100,16 +103,16 @@ namespace TextRPG.Graphics
                     {
                         tempStr = tempStr + new string(' ', (Rect.x - 2) - tempStr.Length);
                     }
-                    tempStr = "|" + tempStr + "|";
+                    tempStr = side + tempStr + side;
 
                     tempBuffer.Add(tempStr);
                 }
                 else
                 {
-                    tempBuffer.Add("|" + new string(' ', Rect.x - 2) + "|");
+                    tempBuffer.Add(side + new string(' ', Rect.x - 2) + side);
                 }
             }
-            tempBuffer.Add(new string('=', Rect.x));
+            tempBuffer.Add(new string(top, Rect.x));
 
             return tempBuffer;
         }

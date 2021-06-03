@@ -14,7 +14,7 @@ namespace TextRPG.GUI
         {
             AddToOutputBuffer("(0) Back to Menu");
             AddNewLine();
-            AddToOutputBuffer(MonsterManager.GetOptions());
+            AddToOutputBuffer(OldMonsterManager.GetOptions());
             AddBorder();
         }
         public override void Show()
@@ -35,8 +35,8 @@ namespace TextRPG.GUI
                 if (char.IsDigit(keyInfo.KeyChar))
                 {
                     int index = int.Parse(keyInfo.KeyChar.ToString());
-                    MonsterManager.ChooseMonster(index - 1);
-                    AddToOutputBuffer(MonsterManager.CurrentMonsterInfo());
+                    OldMonsterManager.ChooseMonster(index - 1);
+                    AddToOutputBuffer(OldMonsterManager.CurrentMonsterInfo());
                 }
                 else
                 {

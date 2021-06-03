@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TextRPG
 {
-    public static class MonsterManager
+    public static class OldMonsterManager
     {
         public static Monster CurrentMonster {
             get
@@ -15,7 +15,7 @@ namespace TextRPG
         private static List<Monster> monsters;
         private static int currentMonsterIndex;
 
-        static MonsterManager()
+        static OldMonsterManager()
         {
 
             monsters = new List<Monster>();

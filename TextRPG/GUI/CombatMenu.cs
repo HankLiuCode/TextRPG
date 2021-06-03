@@ -5,9 +5,9 @@ namespace TextRPG.GUI
 {
     class CombatMenu : BadWindow
     {
-        private Player _player;
+        private OldPlayer _player;
 
-        public CombatMenu(int width, int height, Player player) : base(width, height)
+        public CombatMenu(int width, int height, OldPlayer player) : base(width, height)
         {
             _player = player;
         }
@@ -16,7 +16,7 @@ namespace TextRPG.GUI
         {
             AddToOutputBuffer("(0)Back to Menu");
             AddNewLine();
-            AddToOutputBuffer(string.Format("Current Monster:  {0}", MonsterManager.CurrentMonster.Name));
+            AddToOutputBuffer(string.Format("Current Monster:  {0}", OldMonsterManager.CurrentMonster.Name));
             AddToOutputBuffer("(1)Attack  (2)Bomb Attack");
             AddNewLine();
             AddBorder();

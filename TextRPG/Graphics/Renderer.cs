@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TextRPG.Common;
 
 namespace TextRPG.Graphics
-{
-    public struct WindowData
-    {
-        public Vector2 position;
-        public Vector2 rect;
-    }
-    // how to clear console ????
+{   
     static class Renderer
     {
         static List<Window> renderList;
-        static List<WindowData> windowData;
 
         static Renderer()
         {
             renderList = new List<Window>();
-            windowData = new List<WindowData>();
+            Console.CursorVisible = false;
         }
 
         public static void AddWindow(Window window)
@@ -28,12 +22,17 @@ namespace TextRPG.Graphics
 
         public static void RemoveWindow(Window window)
         {
-            ClearWindowScreen(window);
             renderList.Remove(window);
         }
 
         public static void Render()
         {
+
+            // Solution 1
+            //Console.Clear();
+
+
+
             foreach(Window w in renderList)
             {
                 if (w.IsVisible)
@@ -46,6 +45,11 @@ namespace TextRPG.Graphics
                             Console.Write(w.Buffer[y]);
                         }
                     }
+                }
+                else
+                {
+                    // Solution 2
+                    ClearWindowScreen(w);
                 }
             }
         }

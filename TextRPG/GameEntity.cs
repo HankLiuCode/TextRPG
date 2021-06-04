@@ -7,30 +7,22 @@ namespace TextRPG
 {
     public class OnMoveEventArgs : EventArgs
     {
-        public Vector2 fromVector;
-        public Vector2 toVector;
-        public char symbol;
-        public string name;
+        public GameEntity moveTarget;
+        public Vector2 targetPosition;
 
-        public OnMoveEventArgs(Vector2 fromVector, Vector2 toVector, char symbol, string name)
+        public OnMoveEventArgs(GameEntity moveTarget, Vector2 targetPosition)
         {
-            this.fromVector = fromVector;
-            this.toVector = toVector;
-            this.symbol = symbol;
-            this.name = name;
+            this.moveTarget = moveTarget;
+            this.targetPosition = targetPosition;
         }
     }
     public class OnDestroyEventArgs : EventArgs
     {
-        public Vector2 destroyTarget;
-        public char symbol;
-        public string name;
+        public GameEntity destroyTarget;
 
-        public OnDestroyEventArgs(Vector2 destroyTarget, char symbol, string name)
+        public OnDestroyEventArgs(GameEntity destroyTarget)
         {
             this.destroyTarget = destroyTarget;
-            this.symbol = symbol;
-            this.name = name;
         }
     }
 
@@ -38,31 +30,40 @@ namespace TextRPG
     {
         public event EventHandler<OnMoveEventArgs> OnMove;
         public event EventHandler<OnDestroyEventArgs> OnDestroy;
-        public bool IsActive { get; private set; }
+        public bool IsActive { get; set; }
         public string name;
-        char symbol;
-        public Vector2 Position { get; private set; }
+        public char Symbol { get; private set; }
+
+        private Vector2 _position;
+        public Vector2 Position {
+            get 
+            {
+                return _position;
+            }
+            set 
+            {
+                if (OnMove != null) OnMove.Invoke(this, new OnMoveEventArgs(this, value));
+                _position = value;
+            }
+        }
 
         public GameEntity(string name, char symbol, Vector2 position)
         {
             this.name = name;
-            this.symbol = symbol;
-            Position = position;
+            Symbol = symbol;
 
-            //has to call map.Bind(this) in order to work
-            IsActive = true;
+            Position = position;
         }
 
         public void Destroy(GameEntity gameEntity)
         {
-            IsActive = false;
-            if (OnDestroy != null) OnDestroy.Invoke(this, new OnDestroyEventArgs(Position, symbol, name));
+            if (OnDestroy != null) OnDestroy.Invoke(this, new OnDestroyEventArgs(this));
         }
 
-        public void SetPosition(Vector2 newPosition)
-        {
-            if (OnMove != null) OnMove.Invoke(this, new OnMoveEventArgs(Position, newPosition, symbol, name));
-            Position = newPosition;
-        }
+        //public void SetPosition(Vector2 newPosition)
+        //{
+        //    if (OnMove != null) OnMove.Invoke(this, new OnMoveEventArgs(Position, newPosition, symbol, name));
+        //    Position = newPosition;
+        //}
     }
 }

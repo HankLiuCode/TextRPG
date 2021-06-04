@@ -7,17 +7,16 @@ namespace TextRPG
     static class MonsterManager
     {
         public static List<Character> monsters = new List<Character>();
-        static Map _map;
 
-        public static void FindMonsters(Map map, char monsterSymbol)
+        public static void LoadMonsters(Map map, char symbol)
         {
-            _map = map;
-            Vector2[] monsterPositions = map.FindAll(monsterSymbol);
-            foreach (Vector2 mp in monsterPositions)
+            Vector2[] monsterPositions = map.FindCharPositions(symbol);
+
+            for(int i=0; i < monsterPositions.Length; i++)
             {
-                Character monster = new Character("Monster", monsterSymbol, mp, new Stats(1, 7, 1, 1));
+                Character monster = new Character("Monster "+ i, symbol, monsterPositions[i], new Stats(1, 7, 1, 1));
                 monsters.Add(monster);
-                map.Bind(monster);
+                MapController.Bind(monster, map);
             }
         }
 

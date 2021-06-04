@@ -9,7 +9,7 @@ namespace TextRPG
         private byte _buffStatus;
         private Loot _loot;
 
-        public Monster(string name, char symbol, Vector2 position, Stats stats) : base(name,symbol,position,stats)
+        public Monster(string name, char symbol, Vector2 position, Stats stats) : base(name,symbol, position, stats)
         {
 
         }

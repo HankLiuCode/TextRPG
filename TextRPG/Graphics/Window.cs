@@ -38,6 +38,7 @@ namespace TextRPG.Graphics
 
         public void Write(string targetString)
         {
+            targetString = targetString.Replace("\n", " ").Replace("\t", " ").Trim();
             _buffer.Add(targetString);
         }
 

@@ -25,6 +25,8 @@ namespace TextRPG.Common {
 
         public static Vector2 One { get { return new Vector2(1, 1); } }
 
+        public static Vector2 Zero { get { return new Vector2(0, 0); } }
+
         public Vector2(int x, int y)
         {
             this.x = x;

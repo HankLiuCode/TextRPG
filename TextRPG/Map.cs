@@ -3,56 +3,60 @@ using System.Collections.Generic;
 using TextRPG.Common;
 using TextRPG;
 
-class Map
+
+public class OutOfMapBoundaryException : Exception
+{
+}
+
+public class Map
 {
     char[,] map;
-    char temp;
-
-    public Map(string[] rawMap)
-    {
-        string tempStr = "";
-        foreach (string s in rawMap)
-        {
-            tempStr += s + "\n";
-        }
-
-        map = StringToCharArray(tempStr);
-        temp = '.';
-    }
-
     public Map(string rawMap)
     {
-        map = StringToCharArray(rawMap);
-        temp = '.';
+        map = StringToMap(rawMap);
     }
-
-    public void UnBind(GameEntity gameEntity)
+    public Map(string[] lines)
     {
-        gameEntity.OnMove -= GameEntity_OnMove;
-        gameEntity.OnDestroy -= GameEntity_OnDestroy;
+        map = StringToMap(lines);
     }
 
-    public void Bind(GameEntity gameEntity)
+    public void RoundSwitch(ref char a, Vector2 b, Vector2 c, Vector2 d)
     {
-        gameEntity.OnMove += GameEntity_OnMove;
-        gameEntity.OnDestroy += GameEntity_OnDestroy;
+        char temp = a;
+        a = GetChar(b);
+        SetChar(b, GetChar(c));
+        SetChar(c, GetChar(d));
+        SetChar(c, temp);
     }
-
-    private void GameEntity_OnDestroy(object sender, OnDestroyEventArgs e)
+    public void RoundSwitch(ref char a, Vector2 b, Vector2 c)
     {
-        map[e.destroyTarget.x, e.destroyTarget.y] = temp;
-        UnBind((GameEntity) sender);
+        char temp = a;
+        a = GetChar(c);
+        SetChar(c, GetChar(b));
+        SetChar(b, temp);
     }
-
-    private void GameEntity_OnMove(object sender, OnMoveEventArgs e)
+    public void Switch(Vector2 a, Vector2 b)
     {
-        Vector2 target = Find(e.symbol);
-        if (target != e.fromVector)
-            throw new Exception(string.Format("Symbol doesn't match! {0} {1} {2}", sender, target, e.fromVector));
-        Move(e.fromVector, e.toVector);
+        char tempA = GetChar(a);
+        char tempB = GetChar(b);
+        SetChar(a, tempB);
+        SetChar(b, tempA);
     }
+    public void SetChar(Vector2 position, char ch)
+    {
+        if (position.x < 0 || position.x >= map.GetLength(0) || position.y < 0 || position.y >= map.GetLength(1))
+            throw new OutOfMapBoundaryException();
 
-    public Vector2 Find(char target)
+        map[position.x, position.y] = ch;
+    }
+    public char GetChar(Vector2 position)
+    {
+        if (position.x < 0 || position.x >= map.GetLength(0) || position.y < 0 || position.y >= map.GetLength(1))
+            throw new OutOfMapBoundaryException();
+
+        return map[position.x, position.y];
+    }
+    public Vector2 FindCharPosition(char target)
     {
         for (int i = 0; i < map.GetLength(0); i++)
         {
@@ -67,8 +71,7 @@ class Map
 
         return new Vector2(-1, -1);
     }
-
-    public Vector2[] FindAll(char target)
+    public Vector2[] FindCharPositions(char target)
     {
         List<Vector2> found = new List<Vector2>();
         for (int i = 0; i < map.GetLength(0); i++)
@@ -76,87 +79,109 @@ class Map
             for (int j = 0; j < map.GetLength(1); j++)
             {
                 if (map[i, j] == target)
-                    found.Add(new Vector2(i,j));
+                {
+                    found.Add(new Vector2(i, j));
+                }
             }
         }
         return found.ToArray();
     }
-
-    public void Move(Vector2 from, Vector2 to)
-    {
-        if (from == to || from == -Vector2.One || to == -Vector2.One)
-            return;
-
-        char tempChar = temp;
-        temp = map[to.x, to.y];
-        map[to.x, to.y] = map[from.x, from.y];
-        map[from.x, from.y] = tempChar;
-    }
-
-
-    public string[] GetStateStringArray()
-    {
-        return CharArrayToStringArray(map);
-    }
-    public char[,] GetStateCharArray()
+    public char[,] GetState()
     {
         return map;
     }
-    public static string[] StringToStringArray(string map)
+    public string[] ToStringArray(int spacing = 0)
     {
-        string[] lines = map.Split("\n", StringSplitOptions.RemoveEmptyEntries);
-        return lines;
-    }
-    public static string[] CharArrayToStringArray(char[,] charArr)
-    {
-        string tempStr = CharArrayToString(charArr);
-        return StringToStringArray(tempStr);
-    }
-    public static string CharArrayToString(char[,] charArr)
-    {
-        string temp = "";
-        for (int j = 0; j < charArr.GetLength(1); j++)
+        int width = map.GetLength(0);
+        int height = map.GetLength(1);
+        string[] mapStringArray = new string[height];
+
+        for(int j=0; j < height; j++)
         {
-            for (int i = 0; i < charArr.GetLength(0); i++)
+            string line = "";
+            for(int i=0; i < width; i++)
             {
-                temp += charArr[i, j];
+                line += map[i, j] + new string(' ', spacing);
             }
-            temp += "\n";
+            mapStringArray[j] = line;
         }
+
+        return mapStringArray;
+    }
+
+    public static char[,] StringToMap(string rawMap)
+    {
+        string[] lines = rawMap.Split("\r\n");
+        return StringToMap(lines);
+    }
+    public static char[,] StringToMap(string[] lines)
+    {
+        // check if every line has the same length
+        bool isValid = true;
+        int maxLengthX = lines[0].Length;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = lines[i];
+            if (maxLengthX < line.Length)
+            {
+                isValid = false;
+                maxLengthX = line.Length;
+            }
+            else if (maxLengthX > line.Length)
+            {
+                isValid = false;
+            }
+        }
+
+
+        if (isValid)
+        {
+            char[,] map = new char[maxLengthX, lines.Length];
+            for (int j = 0; j < lines.Length; j++)
+            {
+                for (int i = 0; i < maxLengthX; i++)
+                {
+                    map[i, j] = lines[j][i];
+                }
+            }
+            return map;
+        }
+        else
+        {
+            char[,] map = new char[maxLengthX, lines.Length];
+            for (int j = 0; j < lines.Length; j++)
+            {
+                for (int i = 0; i < maxLengthX; i++)
+                {
+                    if (i < lines[j].Length)
+                    {
+                        map[i, j] = lines[j][i];
+                    }
+                    else
+                    {
+                        map[i, j] = ' ';
+                    }
+                }
+            }
+            return map;
+        }
+    }
+    public override string ToString()
+    {
+        int width = map.GetLength(0);
+        int height = map.GetLength(1);
         
-        return temp;
-    }
-    public static char[,] StringToCharArray(string map)
-    {
-        string[] lines = map.Split("\n", StringSplitOptions.RemoveEmptyEntries);
-        int width = lines[0].Length;
-        int height = lines.Length;
+        string mapString = "";
 
-        char[,] cells = new char[width, height];
-
-        for (int x = 0; x < width; x++)
+        for(int j=0; j < height; j++)
         {
-            for (int y = 0; y < height; y++)
+            for (int i = 0; i < width; i++) 
             {
-                cells[x, y] = lines[y][x];
+                mapString += map[i, j];
             }
+            mapString += "\n";
         }
-        return cells;
-    }
-    
-    public static void PrintMap(char[,] charArr)
-    {
-        string temp = "";
-        for (int j = 0; j < charArr.GetLength(1); j++)
-        {
-            for (int i = 0; i < charArr.GetLength(0); i++)
-            {
-                temp += charArr[i, j];
-            }
-            temp += "\n";
-        }
-
-        Console.WriteLine(temp);
+        return mapString;
     }
 }
 

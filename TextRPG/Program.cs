@@ -22,36 +22,57 @@ namespace TextRPG
             //colorMapping.Add('.', new Pixel(ConsoleColor.Black, ConsoleColor.White));
             //colorMapping.Add(',', new Pixel(ConsoleColor.DarkBlue, ConsoleColor.White));
             //colorMapping.Add('\"', new Pixel(ConsoleColor.Black, ConsoleColor.Green));
-            //string level1 = File.ReadAllText("Levels\\level1.txt");
-            //Console.WriteLine(level1);
+
+            //byte[] levelbytes = File.ReadAllBytes("Levels\\level1.txt");
+            //Console.Write(BitConverter.ToString(levelbytes).Replace("-"," "));
 
 
-            //foreach(string s in Map.CharArrayToStringArray(Map.StringToCharArray(level1)))
+            //string level = File.ReadAllText("Levels\\level2.txt", System.Text.Encoding.UTF8);
+            //Map map = new Map(level);
+
+            //char a = 'Y';
+            //Vector2 from = Vector2.Zero;
+            //Vector2 to = Vector2.One;
+            //Console.WriteLine(string.Format("{0} {1} {2}", a, map.GetChar(from), map.GetChar(to)));
+            //map.RoundSwitch(ref a, from, to);
+            //Console.WriteLine(string.Format("{0} {1} {2}", a, map.GetChar(from), map.GetChar(to)));
+            //Console.WriteLine(map);
+
+
+            //Character player = new Character("Player", '@', Vector2.One, new Stats(1, 10, 1, 1));
+            //MapController.Bind(player, map);
+
+            //ConsoleKeyInfo keyInfo;
+            //while (true)
             //{
-            //    Console.WriteLine(s);
+            //    keyInfo = Console.ReadKey(true);
+            //    if(keyInfo.Key == ConsoleKey.Enter)
+            //    {
+            //        player.Position = player.Position + Vector2.Down;
+            //    }
             //}
+
             Game();
 
-            
         }
+
+
         public static void Game()
         {
-            // there is still a bug offset strange
-            // string level1 = File.ReadFile("Levels\\level1.txt");
+            //string level = File.ReadAllText("Levels\\level4.txt");
+            string[] level = File.ReadAllLines("Levels\\level2.txt");
 
-            string[] level = File.ReadAllLines("Levels\\level3.txt");
-            
             Map map = new Map(level);
 
-            Character player = new Character("Player", '@', map.Find('@'), new Stats(1, 10, 1, 1));
-            map.Bind(player);
+            Character player = new Character("Player", '@', map.FindCharPosition('@'), new Stats(1, 10, 1, 1));
+            MonsterManager.LoadMonsters(map, 'm');
+            Vector2[] wallPositions = map.FindCharPositions('#');
 
-            Vector2[] wallPositions = map.FindAll('#');
-            MonsterManager.FindMonsters(map, 'm');
+            //MapController.Bind(player, map);
 
 
             Window gameWindow = new Window(new Vector2(0, 0), new Vector2(50, 30));
-            gameWindow.Write(map.GetStateStringArray());
+            gameWindow.Write(map.ToStringArray(0));
 
             PlayerUI playerUI = new PlayerUI(new Vector2(51, 0), new Vector2(50, 14), player);
 
@@ -68,7 +89,7 @@ namespace TextRPG
             Renderer.Render();
 
             ConsoleKeyInfo keyInfo;
-            while (true)
+            while (player.IsActive)
             {
                 keyInfo = Console.ReadKey(true);
                 Vector2 nextPos = player.Position;
@@ -114,17 +135,12 @@ namespace TextRPG
                 }
                 else
                 {
-                    player.SetPosition(nextPos);
+                    player.Position = nextPos;
                 }
 
-
-                if (keyInfo.Key == ConsoleKey.Enter)
-                {
-                    player.ModifyHealth(-30);
-                }
 
                 gameWindow.Clear();
-                gameWindow.Write(map.GetStateStringArray());
+                gameWindow.Write(map.ToStringArray(0));
 
                 Renderer.Render();
             }

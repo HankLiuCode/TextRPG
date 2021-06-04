@@ -1,64 +1,82 @@
 ﻿using TextRPG.Graphics;
-using TextRPG.Common;
 
 namespace TextRPG
 {
     class PlayerUI
     {
-        public Window options;
-        public Window console;
-        public Character character;
+        public Window playerStatus;
+        public Window inventoryUI;
+        public Player player;
 
-        public PlayerUI(Vector2 position, Vector2 rect, Character character)
+        public PlayerUI(Vector2 position, Vector2 rect, Player player)
         {
-            options = new Window(position, new Vector2(rect.x, (rect.y / 2) + 1));
-            console = new Window(new Vector2(position.x, rect.y / 2), new Vector2(rect.x, rect.y / 2));
-            this.character = character;
-            this.character.OnAttack += Character_OnAttack;
-            this.character.OnHealthModified += Character_OnHealthModified;
+            playerStatus = new Window(position, new Vector2(rect.x, (rect.y / 2) + 1));
+            inventoryUI = new Window(new Vector2(position.x, rect.y / 2), new Vector2(rect.x, rect.y / 2));
+            this.player = player;
+            this.player.OnAttack += Player_OnAttack;
+            this.player.OnHealthModified += Player_OnHealthModified;
+            this.player.OnStatsModified += Player_OnStatsModified;
+            this.player.Inventory.OnItemChanged += Inventory_OnItemChanged;
+            this.player.Inventory.OnInventoryFull += Inventory_OnInventoryFull;
 
-            options.Write("(1) Player Status ");
-            options.Write("(2) Inventory ");
-
-            console.Clear();
-            console.Write(string.Format("Health: ({0}/{1})", character.Health, Character.MAX_HEALTH));
+            ShowPlayerStatus();
+            ShowInventory();
         }
 
-        private void Character_OnHealthModified(object sender, OnHealthModifiedEventArgs e)
+        public void ShowInventory()
         {
-            console.Clear();
-            console.Write(string.Format("Health: ({0}/{1})", character.Health , Character.MAX_HEALTH));
-            if (e.amount < 0)
-                console.Write(string.Format("{0} damaged dealt", -e.amount));
-            else
-                console.Write(string.Format("{0} amount healed", e.amount));
-
-            console.Write(string.Format("{0}", e.healthState));
-        }
-
-        private void Character_OnAttack(object sender, OnAttackEventArgs e)
-        {
-            console.Clear();
-            console.Write(string.Format("Health: ({0}/{1})", character.Health, Character.MAX_HEALTH));
-            if(e.victim.healthState != HealthState.Dead)
+            inventoryUI.Clear();
+            for(int i=0; i < player.Inventory.Capacity; i++)
             {
-                console.Write(string.Format("{0} attacked {1}", e.attacker.name, e.victim.name));
-                console.Write(string.Format("{0}", e.success ? "Attack Success" : "Missed"));
-            }
-            else
-            {
-                console.Write("Already Dead");
+                if(i < player.Inventory.Count)
+                {
+                    inventoryUI.Write(string.Format("({0}) {1}", i+1, player.Inventory[i]));
+                }
+                else
+                {
+                    inventoryUI.Write(string.Format("({0})", i+1));
+                }
             }
         }
 
-        public Window GetWindow()
+        public void ShowPlayerStatus()
         {
-            return console;
+            playerStatus.Clear();
+            playerStatus.Write(string.Format("{0} Health: ({1}/{2})        Exp: ({3}/{4})", player.name, player.Health, Player.MAX_HEALTH, player.Experience, Player.MAX_EXP));
+            playerStatus.Write(string.Format("Strength:   {0}", player.Stats.strength));
+            playerStatus.Write(string.Format("ArmorClass: {0}", player.Stats.armorClass));
+            playerStatus.Write(string.Format("Dexerity:   {0}", player.Stats.dexerity));
+            playerStatus.Write(string.Format("Accuracy:   {0}", player.Stats.accuracy));
+        }
+
+        private void Player_OnHealthModified(object sender, OnHealthModifiedEventArgs e)
+        {
+            ShowPlayerStatus();
+        }
+
+        private void Player_OnAttack(object sender, OnAttackEventArgs e)
+        {
+            
+        }
+
+        private void Player_OnStatsModified(object sender, System.EventArgs e)
+        {
+            ShowPlayerStatus();
+        }
+
+        private void Inventory_OnInventoryFull(object sender, System.EventArgs e)
+        {
+            ShowInventory();
+        }
+
+        private void Inventory_OnItemChanged(object sender, System.EventArgs e)
+        {
+            ShowInventory();
         }
 
         public Window[] GetWindows()
         {
-            return new Window[2] { options, console };
+            return new Window[2] { playerStatus, inventoryUI };
         }
     }
 }

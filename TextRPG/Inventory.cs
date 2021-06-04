@@ -4,70 +4,59 @@ using System.Text;
 
 namespace TextRPG
 {
-    public class Item
+    public enum Item
     {
-        public enum Type
-        {
-            Bomb,
-            HealthPotion,
-            StrengthPotion
-        }
-        public Type ItemType { get; private set; }
-
-        public Item(Type type)
-        {
-            ItemType = type;
-        }
+        Null,
+        Bomb,
+        HealthPotion,
+        StrengthPotion
     }
-
     class Inventory
     {
-        private int _maxSlots = 10;
         private List<Item> slots;
-        public event Action<Item> InventoryFull;
+        public int Capacity { get; private set; }
+        public int Count { get { return slots.Count; } }
+        public Item this[int index] { get { return slots[index]; } }
 
-        public Inventory()
+        public event EventHandler OnItemChanged;
+        public event EventHandler OnInventoryFull;
+
+        public Inventory(int capacity) 
         {
-            slots = new List<Item>(_maxSlots);
+            Capacity = capacity;
+            slots = new List<Item>(Capacity); 
         }
-
-        public void Add(Item item)
+        public Inventory(int capacity, Item[] items)
         {
-            if (slots.Count >= _maxSlots)
+            Capacity = capacity;
+            slots = new List<Item>(Capacity);
+            foreach (Item item in items)
             {
-                InventoryFull.Invoke(item);
-                return;
+                slots.Add(item);
             }
-            slots.Add(item);
-
         }
-
-        public void Remove(Item item)
+        public Item UseItem(int index)
         {
-            slots.Remove(item);
-        }
-
-        public Item Get(Item.Type itemType)
-        {
-            Item item = slots.Find((Item item) => item.ItemType == itemType);
-            return item;
-        }
-
-        public string[] Summary()
-        {
-            string[] info = new string[_maxSlots];
-            for(int i=0; i < _maxSlots; i++)
+            if(index < slots.Count)
             {
-                if(i < slots.Count && slots[i] != null)
-                {
-                    info[i] = string.Format("({0}) {1}", i, slots[i].ItemType);
-                }
-                else
-                {
-                    info[i] = string.Format("({0}) {1}", i, "");
-                }
+                Item item = slots[index];
+                slots.Remove(slots[index]);
+                OnItemChanged?.Invoke(this, EventArgs.Empty);
+                return item;
             }
-            return info;
+            return Item.Null;
+        }
+        public void AddItem(Item item)
+        {
+            if (slots.Count < Capacity)
+            {
+                slots.Add(item);
+                OnItemChanged?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                OnInventoryFull?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 }

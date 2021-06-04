@@ -1,5 +1,4 @@
 ﻿using TextRPG.Graphics;
-using TextRPG.Common;
 
 namespace TextRPG
 {
@@ -17,10 +16,21 @@ namespace TextRPG
             }
         }
 
-        private void Character_OnHealthModified(object sender, OnHealthModifiedEventArgs e)
+        public void ShowMonsterStats(Character character)
         {
             window.Clear();
-            window.Write(string.Format("Health: ({0}/{1})", e.player.Health, Character.MAX_HEALTH));
+            window.Write(string.Format("{0} Health: ({1}/{2})", character.name, character.Health, Character.MAX_HEALTH));
+            window.Write(string.Format("Strength:   {0}", character.Stats.strength));
+            window.Write(string.Format("ArmorClass: {0}", character.Stats.armorClass));
+            window.Write(string.Format("Dexerity:   {0}", character.Stats.dexerity));
+            window.Write(string.Format("Accuracy:   {0}", character.Stats.accuracy));
+        }
+
+        private void Character_OnHealthModified(object sender, OnHealthModifiedEventArgs e)
+        {
+            ShowMonsterStats(e.character);
+            if (e.healthState == HealthState.Dead)
+                window.Clear();
         }
 
         private void Character_OnAttack(object sender, OnAttackEventArgs e)

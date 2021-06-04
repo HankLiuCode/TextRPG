@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using TextRPG.Common;
 
 namespace TextRPG
 {
     static class MapController
     {
         public static Dictionary<GameEntity, Map> bindings = new Dictionary<GameEntity, Map>();
+        public static Dictionary<GameEntity, char> groundChar = new Dictionary<GameEntity, char>();
+        private static char defaultChar = '.';
 
         public static void UnBind(GameEntity gameEntity)
         {
@@ -35,6 +36,8 @@ namespace TextRPG
             }
 
             bindings.Add(gameEntity, map);
+            groundChar.Add(gameEntity, defaultChar);
+
             gameEntity.OnMove += GameEntity_OnMove;
             gameEntity.OnDestroy += GameEntity_OnDestroy;
             gameEntity.IsActive = true;
@@ -45,7 +48,8 @@ namespace TextRPG
             if (bindings.ContainsKey(e.destroyTarget))
             {
                 Vector2 destroyPosition = e.destroyTarget.Position;
-                bindings[e.destroyTarget].SetChar(destroyPosition, '.');
+                bindings[e.destroyTarget].SetChar(destroyPosition, groundChar[e.destroyTarget]);
+                groundChar.Remove(e.destroyTarget);
                 UnBind(e.destroyTarget);
             }
             else
@@ -58,10 +62,14 @@ namespace TextRPG
         {
             if (bindings.ContainsKey(e.moveTarget))
             {
-                char temp = '.';
-                Vector2 fromPosition = e.moveTarget.Position;
-                bindings[e.moveTarget].RoundSwitch(ref temp, fromPosition, e.targetPosition);
-                // Console.WriteLine(string.Format("{0} has moved from {1} to {2}", e.moveTarget, e.moveTarget.Position, e.targetPosition));
+                if(e.moveTarget.Position != e.targetPosition)
+                {
+                    char temp = groundChar[e.moveTarget];
+                    Vector2 fromPosition = e.moveTarget.Position;
+                    bindings[e.moveTarget].RoundSwitch(ref temp, fromPosition, e.targetPosition);
+                    groundChar[e.moveTarget] = temp;
+                    // Console.WriteLine(string.Format("{0} has moved from {1} to {2}", e.moveTarget, e.moveTarget.Position, e.targetPosition));
+                }
             }
             else
             {

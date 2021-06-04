@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TextRPG.Common {
+namespace TextRPG {
     public struct Vector2
     {
         public readonly int x;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TextRPG.Common;
 
 namespace TextRPG
 {
@@ -33,7 +32,6 @@ namespace TextRPG
         public bool IsActive { get; set; }
         public string name;
         public char Symbol { get; private set; }
-
         private Vector2 _position;
         public Vector2 Position {
             get 
@@ -54,16 +52,17 @@ namespace TextRPG
 
             Position = position;
         }
-
-        public void Destroy(GameEntity gameEntity)
+        
+        public void Destroy()
         {
             if (OnDestroy != null) OnDestroy.Invoke(this, new OnDestroyEventArgs(this));
         }
 
-        //public void SetPosition(Vector2 newPosition)
-        //{
-        //    if (OnMove != null) OnMove.Invoke(this, new OnMoveEventArgs(Position, newPosition, symbol, name));
-        //    Position = newPosition;
-        //}
+        public virtual void Update(int step)
+        {
+
+        }
+        
+     
     }
 }

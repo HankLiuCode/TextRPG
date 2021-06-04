@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TextRPG.Common;
 using TextRPG.Utils;
 
 namespace TextRPG
@@ -53,40 +52,52 @@ namespace TextRPG
             this.victim = victim;
         }
     }
-
     public class OnHealthModifiedEventArgs : EventArgs
     {
-        public Character player;
+        public Character character;
         public float amount;
         public HealthState healthState;
         public OnHealthModifiedEventArgs(Character player, float amount, HealthState healthState)
         {
-            this.player = player;
+            this.character = player;
             this.amount = amount;
             this.healthState = healthState;
         }
     }
-
+    
+    
     public class Character : GameEntity
     {
         public static int MAX_HEALTH = 100;
         public float Health { get; private set; }
         public HealthState healthState;
-        public Stats stats;
-
+        private Stats _stats;
+        public Stats Stats { 
+            get 
+            { 
+                return _stats;  
+            } 
+            set 
+            {
+                _stats = value;
+                OnStatsModified?.Invoke(this, EventArgs.Empty);
+            } 
+        }
+        public event EventHandler OnStatsModified; 
         public event EventHandler<OnAttackEventArgs> OnAttack;
         public event EventHandler<OnHealthModifiedEventArgs> OnHealthModified;
+
 
         public Character(string name, char symbol, Vector2 position, Stats stats) : base(name, symbol, position)
         {
             Health = 100f;
-            this.stats = stats;
+            this.Stats = stats;
         }
 
         public void Attack(Character victim)
         {
-            bool success = stats.dexerity + stats.accuracy > victim.stats.dexerity;
-            float damage = success ? (stats.strength - victim.stats.armorClass) : 0;
+            bool success = Stats.dexerity + Stats.accuracy > victim.Stats.dexerity;
+            float damage = success ? (Stats.strength - victim.Stats.armorClass) : 0;
             if (success)
                 victim.ModifyHealth(-damage);
 
@@ -118,7 +129,7 @@ namespace TextRPG
 
         private void Die()
         {
-            Destroy(this);
+            Destroy();
         }
     
     }

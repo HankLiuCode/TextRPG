@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TextRPG.Common;
+﻿using System.Collections.Generic;
+
 
 namespace TextRPG.Graphics
 {
+    // TODO: 
+    // WriteLine and Write function
+
     class Window
     {
         public Vector2 Position { get; set; }

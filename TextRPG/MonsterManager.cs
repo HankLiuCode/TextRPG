@@ -1,12 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using TextRPG.Common;
 
 namespace TextRPG
 {
+
+    public class OnMonsterDiedEventArgs : EventArgs
+    {
+        public Monster diedMonster;
+        public OnMonsterDiedEventArgs(Monster monster)
+        {
+            this.diedMonster = monster;
+        }
+
+    }
     static class MonsterManager
     {
-        public static List<Character> monsters = new List<Character>();
+        public static List<Monster> monsters = new List<Monster>();
+        public static event EventHandler<OnMonsterDiedEventArgs> OnMonsterDied;
 
         public static void LoadMonsters(Map map, char symbol)
         {
@@ -14,15 +24,34 @@ namespace TextRPG
 
             for(int i=0; i < monsterPositions.Length; i++)
             {
-                Character monster = new Character("Monster "+ i, symbol, monsterPositions[i], new Stats(1, 7, 1, 1));
+                Monster monster = new Monster("Monster"+ i, symbol, monsterPositions[i], new Stats(1, 4, 1, 1));
                 monsters.Add(monster);
+                monster.OnHealthModified += Monster_OnHealthModified;
                 MapController.Bind(monster, map);
             }
         }
 
-        public static Character GetMonster(Vector2 checkPos)
+        public static void UnloadMonsters()
         {
-            foreach(Character m in monsters)
+            foreach(Monster monster in monsters)
+            {
+                monster.OnHealthModified -= Monster_OnHealthModified;
+                MapController.UnBind(monster);
+            }
+            monsters.Clear();
+        }
+
+        private static void Monster_OnHealthModified(object sender, OnHealthModifiedEventArgs e)
+        {
+            if(e.healthState == HealthState.Dead)
+            {
+                if (OnMonsterDied != null) OnMonsterDied.Invoke(e, new OnMonsterDiedEventArgs((Monster) e.character));
+            }
+        }
+
+        public static Monster GetMonster(Vector2 checkPos)
+        {
+            foreach(Monster m in monsters)
             {
                 if (m.Position == checkPos && m.IsActive)
                     return m;

@@ -20,10 +20,22 @@ namespace TextRPG.Utils
             return result;
         }
 
-        public static string PickFrom(string[] strings)
+
+        public static string ChooseFrom(string[] strings)
         {
             int index = random.Next(0, strings.Length);
             return strings[index];
+        }
+
+        public static int ChooseFrom(int[] ints)
+        {
+            int index = random.Next(0, ints.Length);
+            return ints[index];
+        }
+        public static Item ChooseFrom(Item[] items)
+        {
+            int index = random.Next(0, items.Length);
+            return items[index];
         }
     }
 }

@@ -38,22 +38,21 @@ namespace TextRPG
 
             GameManager.Initialize();
 
-            //Vector2 playerPos = MapManager.CurrentMap.FindCharPosition('@');
-            Player player = new Player("Player", '@', Vector2.One, new Stats(1, 10, 1, 1));
+            Vector2 playerStartPos = GameManager.CurrentMap.FindCharPosition('@');
+            Player player = new Player("Player", '@', playerStartPos, new Stats(1, 10, 1, 1));
             MapController.Bind(player, GameManager.CurrentMap);
 
             Window gameWindow = new Window(new Vector2(0, 0), new Vector2(50, 30));
             MonsterUI monsterUI = new MonsterUI(new Vector2(51, 14), new Vector2(50, 8));
             PlayerUI playerUI = new PlayerUI(new Vector2(51, 0), new Vector2(50, 14), player);
-            Window infoWindow = new Window(new Vector2(51, 22), new Vector2(50, 6));
-            infoWindow.Write("Welcome to the summoners rift");
+
 
             gameWindow.Write(GameManager.CurrentMap.ToStringArray(0));
 
             Renderer.AddWindow(gameWindow);
             Renderer.AddWindow(monsterUI.GetWindow());
             Renderer.AddWindows(playerUI.GetWindows());
-            Renderer.AddWindow(infoWindow);
+            Renderer.AddWindow(GameConsole.GetWindow());
             Renderer.Render();
 
             // Game Loop

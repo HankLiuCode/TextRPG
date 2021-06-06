@@ -1,5 +1,4 @@
 ﻿using System;
-using TextRPG.Graphics;
 
 namespace TextRPG
 {
@@ -43,7 +42,13 @@ namespace TextRPG
             
             Experience = 0;
             Inventory = new Inventory(5);
+            Inventory.AddItem(Item.Bomb);
+            Inventory.AddItem(Item.Bomb);
+            Inventory.AddItem(Item.Bomb);
+            Inventory.AddItem(Item.Bomb);
+            Inventory.AddItem(Item.HealthPotion);
             MonsterManager.OnMonsterDied += MonsterManager_OnMonsterDied;
+            OnAttack += Player_OnAttack;
         }
 
         public override void Update(int step)
@@ -52,44 +57,48 @@ namespace TextRPG
                 return;
 
             keyInfo = Console.ReadKey(true);
-            Vector2 nextPos = Position;
+            bool upPressed = keyInfo.Key == ConsoleKey.UpArrow || keyInfo.Key == ConsoleKey.W;
+            bool leftPressed = keyInfo.Key == ConsoleKey.LeftArrow || keyInfo.Key == ConsoleKey.A;
+            bool rightPressed = keyInfo.Key == ConsoleKey.RightArrow || keyInfo.Key == ConsoleKey.D;
+            bool downPressed = keyInfo.Key == ConsoleKey.DownArrow || keyInfo.Key == ConsoleKey.S;
+            bool movePressed = upPressed || leftPressed || downPressed || rightPressed;
 
-            if (keyInfo.Key == ConsoleKey.UpArrow)
+            bool num1Pressed = keyInfo.Key == ConsoleKey.D1 || keyInfo.Key == ConsoleKey.NumPad1;
+            bool num2Pressed = keyInfo.Key == ConsoleKey.D2 || keyInfo.Key == ConsoleKey.NumPad2;
+            bool num3Pressed = keyInfo.Key == ConsoleKey.D3 || keyInfo.Key == ConsoleKey.NumPad3;
+            bool num4Pressed = keyInfo.Key == ConsoleKey.D4 || keyInfo.Key == ConsoleKey.NumPad4;
+            bool num5Pressed = keyInfo.Key == ConsoleKey.D5 || keyInfo.Key == ConsoleKey.NumPad5;
+
+            Vector2 nextPos = Position;
+            if (upPressed)
             {
                 nextPos += Vector2.Up;
             }
-            else if (keyInfo.Key == ConsoleKey.LeftArrow)
+            else if (leftPressed)
             {
                 nextPos += Vector2.Left;
             }
-            else if (keyInfo.Key == ConsoleKey.DownArrow)
+            else if (downPressed)
             {
                 nextPos += Vector2.Down;
             }
-            else if (keyInfo.Key == ConsoleKey.RightArrow)
+            else if (rightPressed)
             {
                 nextPos += Vector2.Right;
             }
 
+
             int numPressed = -1;
-            switch (keyInfo.Key)
-            {
-                case (ConsoleKey.D1):
-                    numPressed = 1;
-                    break;
-                case (ConsoleKey.D2):
-                    numPressed = 2;
-                    break;
-                case (ConsoleKey.D3):
-                    numPressed = 3;
-                    break;
-                case (ConsoleKey.D4):
-                    numPressed = 4;
-                    break;
-                case (ConsoleKey.D5):
-                    numPressed = 5;
-                    break;
-            }
+            if (num1Pressed)
+                numPressed = 1;
+            else if (num2Pressed)
+                numPressed = 2;
+            else if (num3Pressed)
+                numPressed = 3;
+            else if (num4Pressed)
+                numPressed = 4;
+            else if (num5Pressed)
+                numPressed = 5;
 
             if (Experience >= MAX_EXP)
             {
@@ -114,17 +123,17 @@ namespace TextRPG
             }
             else if (door != null)
             {
-
                 Vector2 direction = nextPos - Position;
                 GameManager.LoadMap(door, this, direction);
             }
             else if (item != Item.Null)
             {
                 Inventory.AddItem(item);
+                Console.Beep(600, 100);
             }
             else if (obstacle != null)
             {
-
+                GameConsole.Write("It's a Wall");
             }
             else
             {
@@ -134,6 +143,9 @@ namespace TextRPG
 
         public void UseExperience(int index)
         {
+            if (index > 4 || index < 1)
+                return;
+
             if (index == 1)
             {
                 Stats = Stats.PlusStrength(1);
@@ -154,6 +166,8 @@ namespace TextRPG
                 Stats = Stats.PlusAccuracy(1);
                 Experience -= MAX_EXP;
             }
+            Console.Beep(300, 50);
+            Console.Beep(400, 100);
         }
 
         public void UseItem(int index)
@@ -163,27 +177,32 @@ namespace TextRPG
                 Item item = Inventory.UseItem(index);
                 if (item == Item.Bomb)
                 {
-                    Monster[] bombedMonsters = new Monster[4];
-                    bombedMonsters[0] = MonsterManager.GetMonster(Position + Vector2.Right);
-                    bombedMonsters[1] = MonsterManager.GetMonster(Position + Vector2.Down);
-                    bombedMonsters[2] = MonsterManager.GetMonster(Position + Vector2.Left);
-                    bombedMonsters[3] = MonsterManager.GetMonster(Position + Vector2.Up);
-
-                    for (int i = 0; i < bombedMonsters.Length; i++)
+                    int bombRange = 2;
+                    for(int i = -bombRange; i < bombRange + 1; i++)
                     {
-                        if (bombedMonsters[i] != null)
+                        for(int j = -bombRange; j < bombRange + 1; j++)
                         {
-                            bombedMonsters[i].ModifyHealth(-50);
+                            Monster m =MonsterManager.GetMonster(Position + new Vector2(i, j));
+                            if (m != null)
+                                m.ModifyHealth(-50);
                         }
                     }
+                    Console.Beep(350, 50);
+                    Console.Beep(250, 100);
                 }
                 else if (item == Item.HealthPotion)
                 {
                     ModifyHealth(20);
+                    Console.Beep(400, 100);
+                    Console.Beep(450, 100);
+                    Console.Beep(500, 100);
                 }
                 else if (item == Item.StrengthPotion)
                 {
                     Stats = Stats.PlusStrength(2);
+                    Console.Beep(400, 100);
+                    Console.Beep(450, 100);
+                    Console.Beep(500, 100);
                 }
             }
         }
@@ -197,6 +216,17 @@ namespace TextRPG
             {
                 Inventory.AddItem(item);
             }
+        }
+
+        private void Player_OnAttack(object sender, OnAttackEventArgs e)
+        {
+            GameConsole.Clear();
+            GameConsole.Write(string.Format("{0} atk-> {1} ({2})", e.attacker.name, e.victim.name, e.success ? (-e.damage).ToString() : "Miss"));
+            
+            if(e.success)
+                Console.Beep(600, 100);
+            else
+                Console.Beep(450, 100);
         }
     }
 }

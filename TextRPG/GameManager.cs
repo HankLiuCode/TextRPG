@@ -25,15 +25,18 @@ namespace TextRPG
         {
             paths = new Dictionary<string, Door>();
 
-
             Map room1 = ReadRoomFile("Rooms\\room1", "room1");
             Map room2 = ReadRoomFile("Rooms\\room2", "room2");
             Map room3 = ReadRoomFile("Rooms\\room3", "room3");
             Map room4 = ReadRoomFile("Rooms\\room4", "room4");
+            Map room5 = ReadRoomFile("Rooms\\room5", "room5");
+            Map room6 = ReadRoomFile("Rooms\\room6", "room6");
 
             ConnectMaps(room1, room2);
             ConnectMaps(room2, room3);
             ConnectMaps(room2, room4);
+            ConnectMaps(room1, room5);
+            ConnectMaps(room5, room6);
 
             CurrentMap = room1;
             LoadMap(CurrentMap);

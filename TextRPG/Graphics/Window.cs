@@ -6,7 +6,7 @@ namespace TextRPG.Graphics
     // TODO: 
     // WriteLine and Write function
 
-    class Window
+    public class Window
     {
         public Vector2 Position { get; set; }
         public Vector2 Rect { get; set; }
@@ -37,9 +37,21 @@ namespace TextRPG.Graphics
             _buffer = new List<string>();
         }
 
+        public void Pop()
+        {
+            if (_buffer.Count > 0)
+                _buffer.RemoveAt(_buffer.Count - 1);
+        }
+
+        public void Dequeue()
+        {
+            if(_buffer.Count > 0)
+                _buffer.RemoveAt(0);
+        }
+
         public void Write(string targetString)
         {
-            targetString = targetString.Replace("\n", " ").Replace("\t", " ").Trim();
+            targetString = targetString.Replace("\n", " ").Replace("\t", " ");
             _buffer.Add(targetString);
         }
 

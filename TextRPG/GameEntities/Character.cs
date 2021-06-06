@@ -117,8 +117,16 @@ namespace TextRPG
 
         public void Attack(Character victim)
         {
-            bool success = Stats.dexerity + Stats.accuracy > victim.Stats.dexerity;
-            float damage = success ? (Stats.strength - victim.Stats.armorClass) : 0;
+            float successPercent = RPGMath.Clamp(Stats.dexerity / victim.Stats.dexerity, 0.2f, 0.8f);
+            successPercent += (Stats.accuracy / 100f);
+
+            bool success = RPGRandom.NextFloat(0f, 1f) > (1.0f - successPercent);
+
+            float damageMultiplier = RPGRandom.NextFloat(0.8f, 1.0f);
+            float reducedPercent = 1.0f - (RPGMath.Clamp(victim.Stats.armorClass, 0f, 80f) / 100f);
+
+            float damage = success ? (Stats.strength * damageMultiplier * reducedPercent) : 0;
+
             if (success)
                 victim.ModifyHealth(-damage);
 

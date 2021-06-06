@@ -102,18 +102,11 @@ namespace TextRPG
         public static void LoadMap(Door door, GameEntity gameEntity, Vector2 direction)
         {
             CurrentMap.SetChar(gameEntity.Position, '.');
+            LoadMap(door.map);
+
             gameEntity.Position = door.position + direction;
 
-            Map map = door.map;
-            CurrentMap = door.map;
             CurrentMap.SetChar(gameEntity.Position, gameEntity.Symbol);
-
-            MonsterManager.UnloadMonsters();
-            ObstacleManager.UnloadObstacles();
-            MapController.UnBindAll();
-
-            MonsterManager.LoadMonsters(map, 'm');
-            ObstacleManager.LoadObstacles(map, '#');
             MapController.Bind(gameEntity, CurrentMap);
         }
     }

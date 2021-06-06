@@ -113,12 +113,9 @@ namespace TextRPG
             }
             else if (door != null)
             {
+
                 Vector2 direction = nextPos - Position;
-                GameManager.CurrentMap.SetChar(Position, '.');
-                GameManager.LoadMap(door.map);
-                Position = door.position + direction;
-                GameManager.CurrentMap.SetChar(Position, '@');
-                MapController.Bind(this, GameManager.CurrentMap);
+                GameManager.LoadMap(door, this, direction);
             }
             else if (obstacle != null)
             {

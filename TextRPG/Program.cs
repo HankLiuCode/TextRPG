@@ -39,7 +39,7 @@ namespace TextRPG
             GameManager.Initialize();
 
             //Vector2 playerPos = MapManager.CurrentMap.FindCharPosition('@');
-            Player player = new Player("Player", '@', Vector2.One, new Stats(1, 10, 1, 1));
+            Player player = new Player("Player", 'Y', Vector2.One, new Stats(1, 10, 1, 1));
             MapController.Bind(player, GameManager.CurrentMap);
 
             Window gameWindow = new Window(new Vector2(0, 0), new Vector2(50, 30));

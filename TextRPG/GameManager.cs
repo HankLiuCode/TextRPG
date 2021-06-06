@@ -93,10 +93,13 @@ namespace TextRPG
             CurrentMap = map;
             MonsterManager.UnloadMonsters();
             ObstacleManager.UnloadObstacles();
+            ItemManager.UnloadItems();
+
             MapController.UnBindAll();
 
             MonsterManager.LoadMonsters(map, 'm');
             ObstacleManager.LoadObstacles(map, '#');
+            ItemManager.LoadItems(map);
         }
 
         public static void LoadMap(Door door, GameEntity gameEntity, Vector2 direction)

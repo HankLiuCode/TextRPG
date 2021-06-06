@@ -15,6 +15,11 @@ public class Map
 {
     char[,] map;
     public string Name { get; private set; }
+    public int Width { get { return map.GetLength(0); } }
+    public int Height { get { return map.GetLength(1); } }
+
+    public char this[int x, int y] { get { return map[x, y]; } }
+
     public Map(string rawMap, string name)
     {
         map = StringToMap(rawMap);

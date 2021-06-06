@@ -102,6 +102,7 @@ namespace TextRPG
 
 
 
+            Item item = ItemManager.GetItem(nextPos);
             Door door = GameManager.GetDoor(nextPos);
             Monster monster = MonsterManager.GetMonster(nextPos);
             Obstacle obstacle = ObstacleManager.GetObstacle(nextPos);
@@ -116,6 +117,10 @@ namespace TextRPG
 
                 Vector2 direction = nextPos - Position;
                 GameManager.LoadMap(door, this, direction);
+            }
+            else if (item != Item.Null)
+            {
+                Inventory.AddItem(item);
             }
             else if (obstacle != null)
             {

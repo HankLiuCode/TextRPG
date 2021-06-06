@@ -42,11 +42,6 @@ namespace TextRPG
             
             Experience = 0;
             Inventory = new Inventory(5);
-            Inventory.AddItem(Item.Bomb);
-            Inventory.AddItem(Item.Bomb);
-            Inventory.AddItem(Item.Bomb);
-            Inventory.AddItem(Item.Bomb);
-            Inventory.AddItem(Item.HealthPotion);
             MonsterManager.OnMonsterDied += MonsterManager_OnMonsterDied;
             OnAttack += Player_OnAttack;
         }
@@ -115,6 +110,7 @@ namespace TextRPG
             Door door = GameManager.GetDoor(nextPos);
             Monster monster = MonsterManager.GetMonster(nextPos);
             Obstacle obstacle = ObstacleManager.GetObstacle(nextPos);
+            Locker locker = LockerManager.GetLocker(nextPos);
 
             if (monster != null)
             {
@@ -134,6 +130,29 @@ namespace TextRPG
             else if (obstacle != null)
             {
                 GameConsole.Write("It's a Wall");
+            }
+            else if (locker != null)
+            {
+                int key1 = Inventory.ItemIndex(Item.Key1);
+                int key2 = Inventory.ItemIndex(Item.Key2);
+                int key3 = Inventory.ItemIndex(Item.Key3);
+
+                if(key1 != -1)
+                {
+                    locker.Open(Inventory[key1]);
+                }
+                else if(key2 != -1)
+                {
+                    locker.Open(Inventory[key2]);
+                }
+                else if (key3 != -1)
+                {
+                    locker.Open(Inventory[key3]);
+                }
+                else
+                {
+                    GameConsole.Write("Need A Key to open");
+                }
             }
             else
             {

@@ -14,6 +14,9 @@ namespace TextRPG
             itemMapping.Add('!', Item.HealthPotion);
             itemMapping.Add('i', Item.StrengthPotion);
             itemMapping.Add('O', Item.Bomb);
+            itemMapping.Add('{', Item.Key1);
+            itemMapping.Add('[', Item.Key2);
+            itemMapping.Add('(', Item.Key3);
         }
 
         public static void LoadItems(Map map)

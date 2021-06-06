@@ -92,12 +92,14 @@ namespace TextRPG
             MonsterManager.UnloadMonsters();
             ObstacleManager.UnloadObstacles();
             ItemManager.UnloadItems();
+            LockerManager.UnloadLockers();
 
             MapController.UnBindAll();
 
             MonsterManager.LoadMonsters(map, 'm');
-            ObstacleManager.LoadObstacles(map, '#');
+            ObstacleManager.LoadObstacles(map);
             ItemManager.LoadItems(map);
+            LockerManager.LoadLockers(map);
         }
 
         public static void LoadMap(Door door, GameEntity gameEntity, Vector2 direction)

@@ -6,14 +6,18 @@ namespace TextRPG
     static class ObstacleManager
     {
         public static List<Obstacle> obstacles = new List<Obstacle>();
+        private static char obstacleSymbol = '#';
 
-        public static void LoadObstacles(Map map, char symbol)
+
+
+        public static void LoadObstacles(Map map)
         {
-            Vector2[] obstaclePositions = map.FindCharPositions(symbol);
+
+            Vector2[] obstaclePositions = map.FindCharPositions(obstacleSymbol);
 
             for (int i = 0; i < obstaclePositions.Length; i++)
             {
-                Obstacle obstacle = new Obstacle("Obstacle" + i, symbol, obstaclePositions[i]);
+                Obstacle obstacle = new Obstacle("Obstacle" + i, obstacleSymbol, obstaclePositions[i]);
                 obstacles.Add(obstacle);
                 MapController.Bind(obstacle, map);
             }

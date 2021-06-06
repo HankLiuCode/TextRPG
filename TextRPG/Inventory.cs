@@ -9,7 +9,10 @@ namespace TextRPG
         Null,
         Bomb,
         HealthPotion,
-        StrengthPotion
+        StrengthPotion,
+        Key1,  // {
+        Key2, // [
+        Key3  // (
     }
     class Inventory
     {
@@ -46,6 +49,19 @@ namespace TextRPG
             }
             return Item.Null;
         }
+
+        public int ItemIndex(Item item)
+        {
+            for(int i=0; i < slots.Count; i++)
+            {
+                if(slots[i] == item)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         public void AddItem(Item item)
         {
             if (slots.Count < Capacity)

@@ -9,7 +9,6 @@ namespace TextRPG
         public Map map;
         public Vector2 position;
 
-
         public Door(Map map, Vector2 position)
         {
             this.map = map;
@@ -22,25 +21,21 @@ namespace TextRPG
         public static Map CurrentMap;
         private static Dictionary<string, Door> paths;
 
-        private static List<Map> maps;
-
         public static void Initialize()
         {
             paths = new Dictionary<string, Door>();
-            maps = new List<Map>();
 
-            Map level1 = ReadLevelFile("Levels\\level1", "level1");
-            Map level2 = ReadLevelFile("Levels\\level2", "level2");
-            Map level3 = ReadLevelFile("Levels\\level3", "level3");
-            Map level4 = ReadLevelFile("Levels\\level4", "level4");
 
-            maps.AddRange(new Map[3] { level1, level2, level3});
+            Map room1 = ReadRoomFile("Rooms\\room1", "room1");
+            Map room2 = ReadRoomFile("Rooms\\room2", "room2");
+            Map room3 = ReadRoomFile("Rooms\\room3", "room3");
+            Map room4 = ReadRoomFile("Rooms\\room4", "room4");
 
-            ConnectMaps(level1, level2);
-            ConnectMaps(level2, level3);
-            ConnectMaps(level2, level4);
+            ConnectMaps(room1, room2);
+            ConnectMaps(room2, room3);
+            ConnectMaps(room2, room4);
 
-            CurrentMap = level1;
+            CurrentMap = room1;
             LoadMap(CurrentMap);
         }
 
@@ -60,10 +55,10 @@ namespace TextRPG
             }
         }
 
-        public static Map ReadLevelFile(string path, string levelName)
+        public static Map ReadRoomFile(string path, string roomName)
         {
-            string level = File.ReadAllText(path);
-            return new Map(level, levelName);
+            string room = File.ReadAllText(path);
+            return new Map(room, roomName);
         }
 
         public static void AddPath(Door doorA, Door doorB)

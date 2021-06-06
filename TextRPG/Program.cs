@@ -39,7 +39,7 @@ namespace TextRPG
             GameManager.Initialize();
 
             //Vector2 playerPos = MapManager.CurrentMap.FindCharPosition('@');
-            Player player = new Player("Player", 'Y', Vector2.One, new Stats(1, 10, 1, 1));
+            Player player = new Player("Player", '@', Vector2.One, new Stats(1, 10, 1, 1));
             MapController.Bind(player, GameManager.CurrentMap);
 
             Window gameWindow = new Window(new Vector2(0, 0), new Vector2(50, 30));
@@ -48,7 +48,7 @@ namespace TextRPG
             Window infoWindow = new Window(new Vector2(51, 22), new Vector2(50, 6));
             infoWindow.Write("Welcome to the summoners rift");
 
-            gameWindow.Write(GameManager.CurrentMap.ToStringArray(1));
+            gameWindow.Write(GameManager.CurrentMap.ToStringArray(0));
 
             Renderer.AddWindow(gameWindow);
             Renderer.AddWindow(monsterUI.GetWindow());
@@ -64,7 +64,7 @@ namespace TextRPG
                 player.Update(step);
 
                 gameWindow.Clear();
-                gameWindow.Write(GameManager.CurrentMap.ToStringArray(1));
+                gameWindow.Write(GameManager.CurrentMap.ToStringArray(0));
                 Renderer.Render();
             }
         }

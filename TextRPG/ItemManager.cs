@@ -6,7 +6,7 @@ namespace TextRPG
 {
     static class ItemManager
     {
-        static Dictionary<Vector2, Item> items = new Dictionary<Vector2, Item>();
+        static Dictionary<Vector2, ItemEntity> items = new Dictionary<Vector2, ItemEntity>();
         static Dictionary<char, Item> itemMapping = new Dictionary<char, Item>();
 
         static ItemManager()
@@ -24,7 +24,10 @@ namespace TextRPG
                 {
                     if (itemMapping.ContainsKey(map[i, j]))
                     {
-                        items.Add(new Vector2(i, j), itemMapping[map[i, j]]);
+                        Item item = itemMapping[map[i, j]];
+                        ItemEntity itemEntity = new ItemEntity(item.ToString(), map[i, j], item, new Vector2(i, j));
+                        items.Add(itemEntity.Position, itemEntity);
+                        MapController.Bind(itemEntity, map);
                     }
                 }
             }
@@ -32,6 +35,10 @@ namespace TextRPG
 
         public static void UnloadItems()
         {
+            foreach(GameEntity itemEntity in items.Values)
+            {
+                MapController.UnBind(itemEntity);
+            }
             items.Clear();
         }
 
@@ -39,7 +46,12 @@ namespace TextRPG
         {
             if (items.ContainsKey(position))
             {
-                return items[position];
+                ItemEntity itemEntity = items[position];
+                Item item = itemEntity.item;
+                itemEntity.Destroy();
+
+                items.Remove(position);
+                return item;
             }
             return Item.Null;
         }

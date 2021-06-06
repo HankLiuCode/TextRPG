@@ -9,7 +9,19 @@ namespace TextRPG
         public MonsterUI(Vector2 position, Vector2 rect)
         {
             window = new Window(position, rect);
-            foreach(Character monster in MonsterManager.monsters)
+            foreach (Character monster in MonsterManager.monsters)
+            {
+                monster.OnAttack += Character_OnAttack;
+                monster.OnHealthModified += Character_OnHealthModified;
+            }
+            MonsterManager.OnReload += MonsterManager_OnReload;
+        }
+
+
+
+        private void MonsterManager_OnReload(object sender, System.EventArgs e)
+        {
+            foreach (Character monster in MonsterManager.monsters)
             {
                 monster.OnAttack += Character_OnAttack;
                 monster.OnHealthModified += Character_OnHealthModified;

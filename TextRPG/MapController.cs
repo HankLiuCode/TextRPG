@@ -17,6 +17,7 @@ namespace TextRPG
             }
             
             bindings.Remove(gameEntity);
+            groundChar.Remove(gameEntity);
 
             gameEntity.OnMove -= GameEntity_OnMove;
             gameEntity.OnDestroy -= GameEntity_OnDestroy;
@@ -25,14 +26,13 @@ namespace TextRPG
 
         public static void Bind(GameEntity gameEntity, Map map)
         {
-            if (bindings.ContainsKey(gameEntity)) 
-            {
-                throw new Exception(string.Format("Map Controller already contains {0}", gameEntity.name));
-            }
-
             if(map.GetChar(gameEntity.Position) != gameEntity.Symbol)
             {
                 throw new Exception(string.Format("{0}.Position is not the same in Map", gameEntity.name));
+            }
+            if (bindings.ContainsKey(gameEntity))
+            {
+                throw new Exception(string.Format("Map already contains {0}", gameEntity.name));
             }
 
             bindings.Add(gameEntity, map);
@@ -41,6 +41,19 @@ namespace TextRPG
             gameEntity.OnMove += GameEntity_OnMove;
             gameEntity.OnDestroy += GameEntity_OnDestroy;
             gameEntity.IsActive = true;
+        }
+
+        public static void UnBindAll()
+        {
+            List<GameEntity> toUnbind = new List<GameEntity>();
+            foreach(GameEntity gameEntity in bindings.Keys)
+            {
+                toUnbind.Add(gameEntity);
+            }
+            foreach(GameEntity gameEntity in toUnbind)
+            {
+                UnBind(gameEntity);
+            }
         }
 
         private static void GameEntity_OnDestroy(object sender, OnDestroyEventArgs e)

@@ -1,36 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using TextRPG.Graphics;
 
 namespace TextRPG
 {
+    public class OnExpModifiedEventArgs : EventArgs
+    {
+        public float exp;
+        public float maxExp;
+        public OnExpModifiedEventArgs(float exp, float maxExp)
+        {
+            this.exp = exp;
+            this.maxExp = maxExp;
+        }
+    }
+
     class Player : Character
     {
         public const float MAX_EXP = 100f;
-        public float Experience { get; private set; }
-        public Inventory Inventory { get; private set; }
-        
 
+        private float _experience;
+        public float Experience 
+        { 
+            get 
+            {
+                return _experience;
+            } 
+            set 
+            {
+                _experience = value;
+                OnExpModified?.Invoke(this, new OnExpModifiedEventArgs(value, MAX_EXP));
+            } 
+        }
+
+        public Inventory Inventory { get; private set; }
 
         ConsoleKeyInfo keyInfo;
 
+        public event EventHandler<OnExpModifiedEventArgs> OnExpModified;
 
         public Player(string name, char symbol, Vector2 position, Stats stats) : base(name, symbol, position, stats)
         {
+            
             Experience = 0;
             Inventory = new Inventory(5);
             MonsterManager.OnMonsterDied += MonsterManager_OnMonsterDied;
-        }
-
-        private void MonsterManager_OnMonsterDied(object sender, OnMonsterDiedEventArgs e)
-        {
-            Reward reward = e.diedMonster.Reward;
-            Experience += reward.exp;
-
-            foreach(Item item in reward.items)
-            {
-                Inventory.AddItem(item);
-            }
         }
 
         public override void Update(int step)
@@ -58,27 +71,92 @@ namespace TextRPG
                 nextPos += Vector2.Right;
             }
 
-            int index = -1;
+            int numPressed = -1;
             switch (keyInfo.Key)
             {
                 case (ConsoleKey.D1):
-                    index = 0;
+                    numPressed = 1;
                     break;
                 case (ConsoleKey.D2):
-                    index = 1;
+                    numPressed = 2;
                     break;
                 case (ConsoleKey.D3):
-                    index = 2;
+                    numPressed = 3;
                     break;
                 case (ConsoleKey.D4):
-                    index = 3;
+                    numPressed = 4;
                     break;
                 case (ConsoleKey.D5):
-                    index = 4;
+                    numPressed = 5;
                     break;
             }
 
-            if(index != -1)
+            if (Experience >= MAX_EXP)
+            {
+                UseExperience(numPressed);
+            }
+            else
+            {
+                UseItem(numPressed - 1);
+            }
+
+
+
+            Door door = GameManager.GetDoor(nextPos);
+            Monster monster = MonsterManager.GetMonster(nextPos);
+            Obstacle obstacle = ObstacleManager.GetObstacle(nextPos);
+
+            if (monster != null)
+            {
+                Attack(monster);
+                monster.Attack(this);
+            }
+            else if (door != null)
+            {
+                Vector2 direction = nextPos - Position;
+                GameManager.CurrentMap.SetChar(Position, '.');
+                GameManager.LoadMap(door.map);
+                Position = door.position + direction;
+                GameManager.CurrentMap.SetChar(Position, '@');
+                MapController.Bind(this, GameManager.CurrentMap);
+            }
+            else if (obstacle != null)
+            {
+
+            }
+            else
+            {
+                Position = nextPos;
+            }
+        }
+
+        public void UseExperience(int index)
+        {
+            if (index == 1)
+            {
+                Stats = Stats.PlusStrength(1);
+                Experience -= MAX_EXP;
+            }
+            else if(index == 2)
+            {
+                Stats = Stats.PlusArmorClass(1);
+                Experience -= MAX_EXP;
+            }
+            else if (index == 3)
+            {
+                Stats = Stats.PlusDexerity(1);
+                Experience -= MAX_EXP;
+            }
+            else if (index == 4)
+            {
+                Stats = Stats.PlusAccuracy(1);
+                Experience -= MAX_EXP;
+            }
+        }
+
+        public void UseItem(int index)
+        {
+            if (index >= 0 )
             {
                 Item item = Inventory.UseItem(index);
                 if (item == Item.Bomb)
@@ -103,26 +181,19 @@ namespace TextRPG
                 }
                 else if (item == Item.StrengthPotion)
                 {
-                    Stats = new Stats(Stats.armorClass, Stats.strength + 2, Stats.dexerity, Stats.accuracy);
+                    Stats = Stats.PlusStrength(2);
                 }
             }
+        }
 
+        private void MonsterManager_OnMonsterDied(object sender, OnMonsterDiedEventArgs e)
+        {
+            Reward reward = e.diedMonster.Reward;
+            Experience += reward.exp;
 
-
-            Monster monster = MonsterManager.GetMonster(nextPos);
-            Obstacle obstacle = ObstacleManager.GetObstacle(nextPos);
-            if (monster != null)
+            foreach (Item item in reward.items)
             {
-                Attack(monster);
-                monster.Attack(this);
-            }
-            else if (obstacle != null)
-            {
-               
-            }
-            else
-            {
-                Position = nextPos;
+                Inventory.AddItem(item);
             }
         }
     }

@@ -17,6 +17,7 @@ namespace TextRPG
     {
         public static List<Monster> monsters = new List<Monster>();
         public static event EventHandler<OnMonsterDiedEventArgs> OnMonsterDied;
+        public static event EventHandler OnReload;
 
         public static void LoadMonsters(Map map, char symbol)
         {
@@ -29,6 +30,7 @@ namespace TextRPG
                 monster.OnHealthModified += Monster_OnHealthModified;
                 MapController.Bind(monster, map);
             }
+            OnReload?.Invoke(null, EventArgs.Empty);
         }
 
         public static void UnloadMonsters()
@@ -45,6 +47,7 @@ namespace TextRPG
         {
             if(e.healthState == HealthState.Dead)
             {
+                monsters.Remove((Monster)e.character);
                 if (OnMonsterDied != null) OnMonsterDied.Invoke(e, new OnMonsterDiedEventArgs((Monster) e.character));
             }
         }

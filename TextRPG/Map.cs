@@ -5,18 +5,25 @@ using TextRPG;
 
 public class OutOfMapBoundaryException : Exception
 {
+    public OutOfMapBoundaryException(string message) : base(message){}
 }
-
+public class CharNotFoundException : Exception
+{
+    public CharNotFoundException(string message) : base(message) { }
+}
 public class Map
 {
     char[,] map;
-    public Map(string rawMap)
+    public string Name { get; private set; }
+    public Map(string rawMap, string name)
     {
         map = StringToMap(rawMap);
+        Name = name;
     }
-    public Map(string[] lines)
+    public Map(string[] lines, string name)
     {
         map = StringToMap(lines);
+        Name = name;
     }
 
     public void RoundSwitch(ref char a, Vector2 b, Vector2 c, Vector2 d)
@@ -44,14 +51,14 @@ public class Map
     public void SetChar(Vector2 position, char ch)
     {
         if (position.x < 0 || position.x >= map.GetLength(0) || position.y < 0 || position.y >= map.GetLength(1))
-            throw new OutOfMapBoundaryException();
+            throw new OutOfMapBoundaryException(string.Format("{0} is out of bound: {1}", position, ch));
 
         map[position.x, position.y] = ch;
     }
     public char GetChar(Vector2 position)
     {
         if (position.x < 0 || position.x >= map.GetLength(0) || position.y < 0 || position.y >= map.GetLength(1))
-            throw new OutOfMapBoundaryException();
+            throw new OutOfMapBoundaryException(string.Format("{0} is out of bound", position));
 
         return map[position.x, position.y];
     }
@@ -67,8 +74,7 @@ public class Map
                 }
             }
         }
-
-        return new Vector2(-1, -1);
+        return Vector2.None;
     }
     public Vector2[] FindCharPositions(char target)
     {
@@ -107,7 +113,6 @@ public class Map
 
         return mapStringArray;
     }
-
     public static char[,] StringToMap(string rawMap)
     {
         string[] lines = rawMap.Split("\r\n");

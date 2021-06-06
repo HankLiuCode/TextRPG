@@ -26,6 +26,26 @@ namespace TextRPG
             this.accuracy = accuracy;
         }
 
+        public Stats PlusArmorClass(float amount)
+        {
+            return new Stats(armorClass + amount, strength, dexerity, accuracy);
+        }
+
+        public Stats PlusStrength(float amount)
+        {
+            return new Stats(armorClass, strength + amount, dexerity, accuracy);
+        }
+
+        public Stats PlusDexerity(float amount)
+        {
+            return new Stats(armorClass, strength, dexerity + amount, accuracy);
+        }
+
+        public Stats PlusAccuracy(float amount)
+        {
+            return new Stats(armorClass, strength, dexerity, accuracy + amount);
+        }
+
         public string[] Summary()
         {
             string[] info = new string[5];
@@ -83,6 +103,7 @@ namespace TextRPG
                 OnStatsModified?.Invoke(this, EventArgs.Empty);
             } 
         }
+
         public event EventHandler OnStatsModified; 
         public event EventHandler<OnAttackEventArgs> OnAttack;
         public event EventHandler<OnHealthModifiedEventArgs> OnHealthModified;

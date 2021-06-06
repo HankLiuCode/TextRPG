@@ -1,7 +1,7 @@
 ﻿using System;
 using TextRPG.Graphics;
-using Newtonsoft.Json;
 using System.IO;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace TextRPG
@@ -11,40 +11,23 @@ namespace TextRPG
     {
         public static void Main(string[] args)
         {
-            //byte[] levelbytes = File.ReadAllBytes("Levels\\level1.txt");
-            //Console.Write(BitConverter.ToString(levelbytes).Replace("-"," "));
+            //Dictionary<string, Door> doorDict = new Dictionary<string, Door>();
 
-            //string level = File.ReadAllText("Levels\\level2.txt", System.Text.Encoding.UTF8);
-            //Map map = new Map(level);
+            //Door door = new Door(new Map(".", "map2"), Vector2.One);
+            //Door door2 = new Door(new Map("#", "map3"), Vector2.One * 2);
 
-            //char a = 'Y';
-            //Vector2 from = Vector2.Zero;
-            //Vector2 to = Vector2.One;
-            //Console.WriteLine(string.Format("{0} {1} {2}", a, map.GetChar(from), map.GetChar(to)));
-            //map.RoundSwitch(ref a, from, to);
-            //Console.WriteLine(string.Format("{0} {1} {2}", a, map.GetChar(from), map.GetChar(to)));
-            //Console.WriteLine(map);
+            //doorDict.Add(door.map.Name + door.position, door2);
 
+            //Door keyDoor = new Door(new Map(".", "map2"), Vector2.One);
 
-            //Character player = new Character("Player", '@', Vector2.One, new Stats(1, 10, 1, 1));
-            //MapController.Bind(player, map);
-
-            //ConsoleKeyInfo keyInfo;
-            //while (true)
-            //{
-            //    keyInfo = Console.ReadKey(true);
-            //    if(keyInfo.Key == ConsoleKey.Enter)
-            //    {
-            //        player.Position = player.Position + Vector2.Down;
-            //    }
-            //}
+            //Console.WriteLine(doorDict[keyDoor.map.Name + keyDoor.position]);
 
             Game();
         }
 
-
         public static void Game()
         {
+            // Question: How to accelerate render process
             Dictionary<char, Pixel> colorMapping = new Dictionary<char, Pixel>();
             colorMapping.Add('@', new Pixel(ConsoleColor.White));
             colorMapping.Add('#', new Pixel(ConsoleColor.White));
@@ -53,29 +36,23 @@ namespace TextRPG
             colorMapping.Add('\"', new Pixel(ConsoleColor.Black, ConsoleColor.Green));
             Renderer.SetColorMapping(colorMapping);
 
+            GameManager.Initialize();
 
-            string level = File.ReadAllText("Levels\\level2.txt");
-            Map map = new Map(level);
-            Player player = new Player("Hank", '@', map.FindCharPosition('@'), new Stats(1, 10, 1, 1));
-            MonsterManager.LoadMonsters(map, 'm');
-            ObstacleManager.LoadObstacles(map, '#');
-
-            MapController.Bind(player, map);
-
-
+            //Vector2 playerPos = MapManager.CurrentMap.FindCharPosition('@');
+            Player player = new Player("Player", '@', Vector2.One, new Stats(1, 10, 1, 1));
+            MapController.Bind(player, GameManager.CurrentMap);
 
             Window gameWindow = new Window(new Vector2(0, 0), new Vector2(50, 30));
-            PlayerUI playerUI = new PlayerUI(new Vector2(51, 0), new Vector2(50, 14), player);
             MonsterUI monsterUI = new MonsterUI(new Vector2(51, 14), new Vector2(50, 8));
-
+            PlayerUI playerUI = new PlayerUI(new Vector2(51, 0), new Vector2(50, 14), player);
             Window infoWindow = new Window(new Vector2(51, 22), new Vector2(50, 6));
             infoWindow.Write("Welcome to the summoners rift");
 
-            gameWindow.Write(map.ToStringArray());
+            gameWindow.Write(GameManager.CurrentMap.ToStringArray(1));
 
             Renderer.AddWindow(gameWindow);
-            Renderer.AddWindows(playerUI.GetWindows());
             Renderer.AddWindow(monsterUI.GetWindow());
+            Renderer.AddWindows(playerUI.GetWindows());
             Renderer.AddWindow(infoWindow);
             Renderer.Render();
 
@@ -86,9 +63,8 @@ namespace TextRPG
                 step++;
                 player.Update(step);
 
-
                 gameWindow.Clear();
-                gameWindow.Write(map.ToStringArray());
+                gameWindow.Write(GameManager.CurrentMap.ToStringArray(1));
                 Renderer.Render();
             }
         }

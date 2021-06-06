@@ -42,11 +42,20 @@ namespace TextRPG.Graphics
         {
 
             // Solution 1
+            // Problem: Console flickers
             //Console.Clear();
 
+            // Solution 2
+            // Problem: Console will leave a track when moved
+            foreach (Window w in renderList)
+            {
+                if (!w.IsVisible)
+                {
+                    ClearWindowScreen(w);
+                }
+            }
 
-
-            foreach(Window w in renderList)
+            foreach (Window w in renderList)
             {
                 if (w.IsVisible)
                 {
@@ -54,8 +63,8 @@ namespace TextRPG.Graphics
                     {
                         if (y < w.Buffer.Count)
                         {
-                            
-                            // colored version but too slow
+
+                            ////colored version but too slow
                             //Console.SetCursorPosition(w.Position.x, w.Position.y + y);
                             //string line = w.Buffer[y];
                             //for (int i = 0; i < line.Length; i++)
@@ -66,15 +75,11 @@ namespace TextRPG.Graphics
                             //    Console.Write(c);
                             //}
 
+                            // black and white version
                             Console.SetCursorPosition(w.Position.x, w.Position.y + y);
                             Console.Write(w.Buffer[y]);
                         }
                     }
-                }
-                else
-                {
-                    // Solution 2
-                    ClearWindowScreen(w);
                 }
             }
         }

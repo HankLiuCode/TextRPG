@@ -27,6 +27,8 @@ namespace TextRPG {
 
         public static Vector2 Zero { get { return new Vector2(0, 0); } }
 
+        public static Vector2 None { get { return new Vector2(-int.MaxValue, -int.MaxValue); } }
+
         public Vector2(int x, int y)
         {
             this.x = x;

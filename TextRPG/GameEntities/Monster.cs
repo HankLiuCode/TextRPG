@@ -47,7 +47,7 @@ namespace TextRPG
 
         public Monster(string name, char symbol, Vector2 position, Stats stats) : base(name,symbol, position, stats)
         {
-            Reward = new Reward(30, 2);
+            Reward = new Reward(100, 2);
         }
 
         public bool CheckStatus(byte mask)

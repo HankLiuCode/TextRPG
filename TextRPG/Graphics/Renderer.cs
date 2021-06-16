@@ -43,7 +43,7 @@ namespace TextRPG.Graphics
 
             // Solution 1
             // Problem: Console flickers
-            //Console.Clear();
+            // Console.Clear();
 
             // Solution 2
             // Problem: Console will leave a track when moved
@@ -64,7 +64,7 @@ namespace TextRPG.Graphics
                         if (y < w.Buffer.Count)
                         {
 
-                            ////colored version but too slow
+                            ////colored version but has lagging issue
                             //Console.SetCursorPosition(w.Position.x, w.Position.y + y);
                             //string line = w.Buffer[y];
                             //for (int i = 0; i < line.Length; i++)

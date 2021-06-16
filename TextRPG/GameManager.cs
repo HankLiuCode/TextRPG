@@ -25,21 +25,27 @@ namespace TextRPG
         {
             paths = new Dictionary<string, Door>();
 
-            Map room1 = ReadRoomFile("Rooms\\room1", "room1");
-            Map room2 = ReadRoomFile("Rooms\\room2", "room2");
-            Map room3 = ReadRoomFile("Rooms\\room3", "room3");
-            Map room4 = ReadRoomFile("Rooms\\room4", "room4");
-            Map room5 = ReadRoomFile("Rooms\\room5", "room5");
-            Map room6 = ReadRoomFile("Rooms\\room6", "room6");
+            Map start = ReadRoomFile("Rooms\\start-room");
+            Map left = ReadRoomFile("Rooms\\left-room");
+            Map top = ReadRoomFile("Rooms\\top-room");
+            Map right = ReadRoomFile("Rooms\\right-room");
+            Map bottom = ReadRoomFile("Rooms\\bottom-room");
+            Map victory = ReadRoomFile("Rooms\\victory-room");
 
-            ConnectMaps(room1, room2);
-            ConnectMaps(room2, room3);
-            ConnectMaps(room2, room4);
-            ConnectMaps(room1, room5);
-            ConnectMaps(room5, room6);
+            ConnectMaps(start, left);
+            ConnectMaps(start, top);
+            ConnectMaps(start, right);
+            ConnectMaps(start, bottom);
+            ConnectMaps(bottom, victory);
 
-            CurrentMap = room1;
+            CurrentMap = start;
             LoadMap(CurrentMap);
+        }
+
+        public static Map ReadRoomFile(string path)
+        {
+            string room = File.ReadAllText(path);
+            return new Map(room, Path.GetFileName(path));
         }
 
         public static void ConnectMaps(Map map1, Map map2)
@@ -56,12 +62,6 @@ namespace TextRPG
                     map2.SetChar(doorPos2, '.');
                 }
             }
-        }
-
-        public static Map ReadRoomFile(string path, string roomName)
-        {
-            string room = File.ReadAllText(path);
-            return new Map(room, roomName);
         }
 
         public static void AddPath(Door doorA, Door doorB)

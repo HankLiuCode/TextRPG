@@ -1,4 +1,5 @@
 ﻿using System;
+using TextRPG.Audio;
 
 namespace TextRPG
 {
@@ -106,7 +107,7 @@ namespace TextRPG
 
 
 
-            Item item = ItemManager.GetItem(nextPos);
+            ItemEntity itemEntity = ItemManager.GetItem(nextPos);
             Door door = GameManager.GetDoor(nextPos);
             Monster monster = MonsterManager.GetMonster(nextPos);
             Obstacle obstacle = ObstacleManager.GetObstacle(nextPos);
@@ -116,16 +117,26 @@ namespace TextRPG
             {
                 Attack(monster);
                 monster.Attack(this);
+                MidiPlayer.PlayAttack();
             }
             else if (door != null)
             {
                 Vector2 direction = nextPos - Position;
                 GameManager.LoadMap(door, this, direction);
             }
-            else if (item != Item.Null)
+            else if (itemEntity != null)
             {
-                Inventory.AddItem(item);
-                Console.Beep(600, 100);
+                if (Inventory.IsFull())
+                {
+                    GameConsole.Write("Inventory Is Full");
+                    MidiPlayer.PlayFailed();
+                }
+                else
+                {
+                    Inventory.AddItem(itemEntity.item);
+                    ItemManager.RemoveItem(nextPos);
+                    MidiPlayer.PlayPickup();
+                }
             }
             else if (obstacle != null)
             {
@@ -133,26 +144,8 @@ namespace TextRPG
             }
             else if (locker != null)
             {
-                int key1 = Inventory.ItemIndex(Item.Key1);
-                int key2 = Inventory.ItemIndex(Item.Key2);
-                int key3 = Inventory.ItemIndex(Item.Key3);
-
-                if(key1 != -1)
-                {
-                    locker.Open(Inventory[key1]);
-                }
-                else if(key2 != -1)
-                {
-                    locker.Open(Inventory[key2]);
-                }
-                else if (key3 != -1)
-                {
-                    locker.Open(Inventory[key3]);
-                }
-                else
-                {
-                    GameConsole.Write("Need A Key to open");
-                }
+                GameConsole.Write("Need a key to open");
+                MidiPlayer.PlayFailed();
             }
             else
             {
@@ -185,44 +178,67 @@ namespace TextRPG
                 Stats = Stats.PlusAccuracy(1);
                 Experience -= MAX_EXP;
             }
-            Console.Beep(300, 50);
-            Console.Beep(400, 100);
+            MidiPlayer.PlayHealthUp();
         }
 
         public void UseItem(int index)
         {
             if (index >= 0 )
             {
-                Item item = Inventory.UseItem(index);
+                Item item = Inventory.GetItem(index);
                 if (item == Item.Bomb)
                 {
                     int bombRange = 2;
-                    for(int i = -bombRange; i < bombRange + 1; i++)
+                    Inventory.UseItem(index);
+                    for (int i = -bombRange; i < bombRange + 1; i++)
                     {
                         for(int j = -bombRange; j < bombRange + 1; j++)
                         {
-                            Monster m =MonsterManager.GetMonster(Position + new Vector2(i, j));
+                            Monster m = MonsterManager.GetMonster(Position + new Vector2(i, j));
                             if (m != null)
-                                m.ModifyHealth(-50);
+                                m.ModifyHealth(-100);
                         }
                     }
-                    Console.Beep(350, 50);
-                    Console.Beep(250, 100);
+                    MidiPlayer.PlayBombAttack();
                 }
                 else if (item == Item.HealthPotion)
                 {
+                    Inventory.UseItem(index);
                     ModifyHealth(20);
-                    Console.Beep(400, 100);
-                    Console.Beep(450, 100);
-                    Console.Beep(500, 100);
+                    MidiPlayer.PlayHealthUp();
                 }
                 else if (item == Item.StrengthPotion)
                 {
+                    Inventory.UseItem(index);
                     Stats = Stats.PlusStrength(2);
-                    Console.Beep(400, 100);
-                    Console.Beep(450, 100);
-                    Console.Beep(500, 100);
+                    MidiPlayer.PlayHealthUp();
                 }
+                else if(item == Item.KEY_curly || item == Item.KEY_square || item == Item.KEY_round)
+                {
+                    int lockerRange = 1;
+                    for (int i = -lockerRange; i < lockerRange + 1; i++)
+                    {
+                        for (int j = -lockerRange; j < lockerRange + 1; j++)
+                        {
+                            Locker locker = LockerManager.GetLocker(Position + new Vector2(i, j));
+
+                            if (locker != null)
+                            {
+                                bool success = locker.Open(item);
+                                if (success)
+                                {
+                                    Inventory.UseItem(index);
+                                    MidiPlayer.PlayUnlock();
+                                }
+                                else
+                                {
+                                    MidiPlayer.PlayFailed();
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
@@ -242,10 +258,7 @@ namespace TextRPG
             GameConsole.Clear();
             GameConsole.Write(string.Format("{0} atk-> {1} ({2})", e.attacker.name, e.victim.name, e.success ? (-e.damage).ToString() : "Miss"));
             
-            if(e.success)
-                Console.Beep(600, 100);
-            else
-                Console.Beep(450, 100);
+            
         }
     }
 }

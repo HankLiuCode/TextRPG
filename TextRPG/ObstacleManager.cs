@@ -8,8 +8,6 @@ namespace TextRPG
         public static List<Obstacle> obstacles = new List<Obstacle>();
         private static char obstacleSymbol = '#';
 
-
-
         public static void LoadObstacles(Map map)
         {
 

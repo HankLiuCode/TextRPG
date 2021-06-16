@@ -48,17 +48,13 @@ namespace TextRPG
 
         public Monster(string name, char symbol, Vector2 position, Stats stats) : base(name,symbol, position, stats)
         {
-            Reward = new Reward(50, 1);
+            Reward = new Reward(RPGRandom.NextFloat(30, 80), RPGRandom.NextInt(1, 3));
             OnAttack += Monster_OnAttack;
         }
 
         private void Monster_OnAttack(object sender, OnAttackEventArgs e)
         {
             GameConsole.Write(string.Format("{0} atk-> {1} ({2})", e.attacker.name, e.victim.name, e.success ? (-e.damage).ToString() : "Miss"));
-            if (e.success)
-                Console.Beep(600, 100);
-            else
-                Console.Beep(450, 100);
         }
 
         public bool CheckStatus(byte mask)

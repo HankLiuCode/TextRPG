@@ -31,7 +31,7 @@ namespace TextRPG
         public void ShowMonsterStats(Character character)
         {
             window.Clear();
-            window.Write(string.Format("{0} Health: ({1}/{2})", character.name, character.Health, Character.MAX_HEALTH));
+            window.Write(string.Format("{0} Health: ({1}/{2})", character.name, character.Health.ToString("0"), Character.MAX_HEALTH));
             window.Write(string.Format("Strength:   {0}", character.Stats.strength));
             window.Write(string.Format("ArmorClass: {0}", character.Stats.armorClass));
             window.Write(string.Format("Dexerity:   {0}", character.Stats.dexerity));

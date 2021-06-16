@@ -16,15 +16,15 @@ namespace TextRPG
         {
             char keySymbol = ' ';
 
-            if (item == Item.Key1)
+            if (item == Item.KEY_curly)
             {
                 keySymbol = '{';
             }
-            else if (item == Item.Key2)
+            else if (item == Item.KEY_square)
             {
                 keySymbol = '[';
             }
-            else if (item == Item.Key2)
+            else if (item == Item.KEY_round)
             {
                 keySymbol = '(';
             }

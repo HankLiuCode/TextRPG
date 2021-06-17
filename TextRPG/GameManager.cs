@@ -20,9 +20,11 @@ namespace TextRPG
     {
         public static Map CurrentMap;
         private static Dictionary<string, Door> paths;
+        public static GameEntityManager gameEntityManager;
 
         public static void Initialize()
         {
+            gameEntityManager = new GameEntityManager();
             paths = new Dictionary<string, Door>();
 
             Map start = ReadRoomFile("Rooms\\start-room");
@@ -86,23 +88,24 @@ namespace TextRPG
             return null;
         }
 
+        public static Door GetDoor(Map map, Vector2 position)
+        {
+            string doorKey = map.Name + position;
+            if (paths.ContainsKey(doorKey))
+            {
+                return paths[doorKey];
+            }
+            return null;
+        }
+
         public static void LoadMap(Map map)
         {
             CurrentMap = map;
-            MonsterManager.UnloadMonsters();
-            ObstacleManager.UnloadObstacles();
-            ItemManager.UnloadItems();
-            LockerManager.UnloadLockers();
-
-            MapController.UnBindAll();
-
-            MonsterManager.LoadMonsters(map);
-            ObstacleManager.LoadObstacles(map);
-            ItemManager.LoadItems(map);
-            LockerManager.LoadLockers(map);
+            gameEntityManager.UnloadGameEntities();
+            gameEntityManager.LoadGameEntities(map);
         }
 
-        public static void LoadMap(Door door, GameEntity gameEntity, Vector2 direction)
+        public static void MoveGameEntityToMap(Door door, GameEntity gameEntity, Vector2 direction)
         {
             CurrentMap.SetChar(gameEntity.Position, '.');
             LoadMap(door.map);

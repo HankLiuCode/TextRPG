@@ -30,7 +30,6 @@ public class Map
         map = StringToMap(lines);
         Name = name;
     }
-
     public void RoundSwitch(ref char a, Vector2 b, Vector2 c, Vector2 d)
     {
         char temp = a;

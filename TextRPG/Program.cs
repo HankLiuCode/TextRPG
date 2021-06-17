@@ -24,6 +24,7 @@ namespace TextRPG
             colorMapping.Add('.', new Pixel(ConsoleColor.White));
             colorMapping.Add(',', new Pixel(ConsoleColor.Black, ConsoleColor.Green));
             colorMapping.Add('\"', new Pixel(ConsoleColor.Black, ConsoleColor.Green));
+            
             Renderer.SetColorMapping(colorMapping);
             GameManager.Initialize();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using TextRPG.Audio;
+using System.Collections.Generic;
 
 namespace TextRPG
 {
@@ -43,8 +44,44 @@ namespace TextRPG
             
             Experience = 0;
             Inventory = new Inventory(5);
-            MonsterManager.OnMonsterDied += MonsterManager_OnMonsterDied;
+            List<Monster> monsters = GameManager.gameEntityManager.Find<Monster>();
+            foreach (Monster m in monsters)
+            {
+                m.OnDestroy += M_OnDestroy;
+            }
+            GameManager.gameEntityManager.OnLoad += GameEntityManager_OnLoad;
+            GameManager.gameEntityManager.OnUnload += GameEntityManager_OnUnload;
             OnAttack += Player_OnAttack;
+        }
+
+        private void GameEntityManager_OnUnload(object sender, EventArgs e)
+        {
+            List<Monster> monsters = GameManager.gameEntityManager.Find<Monster>();
+            foreach (Monster m in monsters)
+            {
+                m.OnDestroy -= M_OnDestroy;
+            }
+        }
+
+        private void GameEntityManager_OnLoad(object sender, EventArgs e)
+        {
+            List<Monster> monsters = GameManager.gameEntityManager.Find<Monster>();
+            foreach (Monster m in monsters)
+            {
+                m.OnDestroy += M_OnDestroy;
+            }
+        }
+
+        private void M_OnDestroy(object sender, OnDestroyEventArgs e)
+        {
+            Monster monster = (Monster) e.destroyTarget;
+            Reward reward = monster.Reward;
+            Experience += reward.exp;
+            foreach (Item item in reward.items)
+            {
+                Inventory.AddItem(item);
+            }
+            monster.OnDestroy -= M_OnDestroy;
         }
 
         public override void Update(int step)
@@ -105,26 +142,21 @@ namespace TextRPG
                 UseItem(numPressed - 1);
             }
 
-
-
-            ItemEntity itemEntity = ItemManager.GetItem(nextPos);
+            GameEntity ge = GameManager.gameEntityManager.GetGameEntity(nextPos);
             Door door = GameManager.GetDoor(nextPos);
-            Monster monster = MonsterManager.GetMonster(nextPos);
-            Obstacle obstacle = ObstacleManager.GetObstacle(nextPos);
-            Locker locker = LockerManager.GetLocker(nextPos);
 
-            if (monster != null)
+            if (ge is Obstacle)
             {
+                GameConsole.Write("It's a Wall");
+            }
+            else if (ge is Monster)
+            {
+                Monster monster = (Monster)ge;
                 Attack(monster);
                 monster.Attack(this);
                 MidiPlayer.PlayAttack();
             }
-            else if (door != null)
-            {
-                Vector2 direction = nextPos - Position;
-                GameManager.LoadMap(door, this, direction);
-            }
-            else if (itemEntity != null)
+            else if (ge is ItemEntity)
             {
                 if (Inventory.IsFull())
                 {
@@ -133,19 +165,28 @@ namespace TextRPG
                 }
                 else
                 {
+                    ItemEntity itemEntity = (ItemEntity)ge;
                     Inventory.AddItem(itemEntity.item);
-                    ItemManager.RemoveItem(nextPos);
+                    GameManager.gameEntityManager.Remove(ge);
                     MidiPlayer.PlayPickup();
                 }
             }
-            else if (obstacle != null)
+            else if (ge is Monster)
             {
-                GameConsole.Write("It's a Wall");
+                Monster monster = (Monster)ge;
+                Attack(monster);
+                monster.Attack(this);
+                MidiPlayer.PlayAttack();
             }
-            else if (locker != null)
+            else if (ge is Locker)
             {
                 GameConsole.Write("Need a key to open");
                 MidiPlayer.PlayFailed();
+            }
+            else if (door != null)
+            {
+                Vector2 direction = nextPos - Position;
+                GameManager.MoveGameEntityToMap(door, this, direction);
             }
             else
             {
@@ -194,9 +235,13 @@ namespace TextRPG
                     {
                         for(int j = -bombRange; j < bombRange + 1; j++)
                         {
-                            Monster m = MonsterManager.GetMonster(Position + new Vector2(i, j));
-                            if (m != null)
-                                m.ModifyHealth(-100);
+                            GameEntity ge = GameManager.gameEntityManager.GetGameEntity(Position + new Vector2(i, j));
+                            if(ge != null && ge is Monster)
+                            {
+                                Monster m = (Monster)ge;
+                                if (m != null)
+                                    m.ModifyHealth(-100);
+                            }
                         }
                     }
                     MidiPlayer.PlayBombAttack();
@@ -220,11 +265,12 @@ namespace TextRPG
                     {
                         for (int j = -lockerRange; j < lockerRange + 1; j++)
                         {
-                            Locker locker = LockerManager.GetLocker(Position + new Vector2(i, j));
+                            GameEntity ge = GameManager.gameEntityManager.GetGameEntity(Position + new Vector2(i, j));
 
-                            if (locker != null)
+                            if(ge != null && ge is Locker)
                             {
-                                bool success = locker.Open(item);
+                                Locker locker = (Locker)ge;
+                                bool success = locker.Unlock(item);
                                 if (success)
                                 {
                                     Inventory.UseItem(index);
@@ -242,16 +288,16 @@ namespace TextRPG
             }
         }
 
-        private void MonsterManager_OnMonsterDied(object sender, OnMonsterDiedEventArgs e)
-        {
-            Reward reward = e.diedMonster.Reward;
-            Experience += reward.exp;
+        //private void MonsterManager_OnMonsterDied(object sender, OnMonsterDiedEventArgs e)
+        //{
+        //    Reward reward = e.diedMonster.Reward;
+        //    Experience += reward.exp;
 
-            foreach (Item item in reward.items)
-            {
-                Inventory.AddItem(item);
-            }
-        }
+        //    foreach (Item item in reward.items)
+        //    {
+        //        Inventory.AddItem(item);
+        //    }
+        //}
 
         private void Player_OnAttack(object sender, OnAttackEventArgs e)
         {

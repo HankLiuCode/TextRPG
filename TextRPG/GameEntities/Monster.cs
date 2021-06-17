@@ -48,8 +48,8 @@ namespace TextRPG
 
         public Monster(string name, char symbol, Vector2 position, Stats stats) : base(name,symbol, position, stats)
         {
-            Reward = new Reward(RPGRandom.NextFloat(30, 80), RPGRandom.NextInt(1, 3));
-            OnAttack += Monster_OnAttack;
+            Reward = new Reward(RPGRandom.NextFloat(30, 80), RPGRandom.NextInt(0, 3));
+            OnAttack += Monster_OnAttack; 
         }
 
         private void Monster_OnAttack(object sender, OnAttackEventArgs e)

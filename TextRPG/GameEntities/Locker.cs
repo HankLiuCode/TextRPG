@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TextRPG
 {
-    class Locker : Obstacle
+    class Locker : GameEntity
     {
         private char lockerSymbol;
         public Locker (string name, char symbol, Vector2 position) : base(name, symbol, position)
@@ -12,7 +12,7 @@ namespace TextRPG
             lockerSymbol = symbol;
         }
 
-        public bool Open(Item item)
+        public bool Unlock(Item item)
         {
             char keySymbol = ' ';
 
@@ -28,10 +28,10 @@ namespace TextRPG
             {
                 keySymbol = '(';
             }
-            return Open(keySymbol);
+            return Unlock(keySymbol);
         }
 
-        public bool Open(char keySymbol)
+        public bool Unlock(char keySymbol)
         {
             if(keySymbol == '{' && lockerSymbol == '}')
             {

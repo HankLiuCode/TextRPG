@@ -19,8 +19,9 @@ namespace TextRPG
         public static event EventHandler<OnMonsterDiedEventArgs> OnMonsterDied;
         public static event EventHandler OnReload;
 
-        public static void LoadMonsters(Map map, char symbol)
+        public static void LoadMonsters(Map map)
         {
+            char symbol = 'm';
             Vector2[] monsterPositions = map.FindCharPositions(symbol);
 
             for(int i=0; i < monsterPositions.Length; i++)

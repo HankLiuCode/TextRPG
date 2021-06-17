@@ -96,7 +96,7 @@ namespace TextRPG
 
             MapController.UnBindAll();
 
-            MonsterManager.LoadMonsters(map, 'm');
+            MonsterManager.LoadMonsters(map);
             ObstacleManager.LoadObstacles(map);
             ItemManager.LoadItems(map);
             LockerManager.LoadLockers(map);

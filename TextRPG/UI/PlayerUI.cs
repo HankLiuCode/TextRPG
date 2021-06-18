@@ -44,12 +44,20 @@ namespace TextRPG
         public void ShowPlayerStatus()
         {
             playerStatus.Clear();
-            playerStatus.Write(string.Format("{0} Health: ({1}/{2})        Exp: ({3}/{4})", player.name, player.Health, Player.MAX_HEALTH, player.Experience, Player.MAX_EXP));
+            playerStatus.Write(string.Format("{0} Health: ({1}/{2})    Exp: ({3}/{4})", 
+                    player.name, 
+                    player.Health.ToString("0"), 
+                    Player.MAX_HEALTH, 
+                    player.Experience.ToString("0"),
+                    Player.MAX_EXP
+                ));
+            
             bool canLevelUp = player.Experience >= Player.MAX_EXP;
-            playerStatus.Write(string.Format("Strength:   {0} {1}", player.Stats.strength, canLevelUp ? "Up (1)" : ""));
-            playerStatus.Write(string.Format("ArmorClass: {0} {1}", player.Stats.armorClass, canLevelUp ? "Up (2)" : ""));
-            playerStatus.Write(string.Format("Dexerity:   {0} {1}", player.Stats.dexerity, canLevelUp ? "Up (3)" : ""));
-            playerStatus.Write(string.Format("Accuracy:   {0} {1}", player.Stats.accuracy, canLevelUp ? "Up (4)" : ""));
+            playerStatus.Write(string.Format("{0} Strength:   {1}", canLevelUp ? "Press (1) Levelup" : "", player.Stats.strength));
+            playerStatus.Write(string.Format("{0} ArmorClass: {1}", canLevelUp ? "Press (2) Levelup" : "", player.Stats.armorClass));
+            playerStatus.Write(string.Format("{0} Dexerity:   {1}", canLevelUp ? "Press (3) Levelup" : "", player.Stats.dexerity));
+            playerStatus.Write(string.Format("{0} Accuracy:   {1}", canLevelUp ? "Press (4) Levelup" : "", player.Stats.accuracy));
+
         }
 
         private void Player_OnExpModified(object sender, OnExpModifiedEventArgs e)

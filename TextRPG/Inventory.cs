@@ -9,7 +9,10 @@ namespace TextRPG
         Null,
         Bomb,
         HealthPotion,
-        StrengthPotion
+        StrengthPotion,
+        KEY_curly,  // {
+        KEY_square, // [
+        KEY_round  // (
     }
     class Inventory
     {
@@ -35,6 +38,14 @@ namespace TextRPG
                 slots.Add(item);
             }
         }
+
+        public bool IsFull()
+        {
+            if (Count < Capacity)
+                return false;
+            return true;
+        }
+
         public Item UseItem(int index)
         {
             if(index < slots.Count)
@@ -46,6 +57,29 @@ namespace TextRPG
             }
             return Item.Null;
         }
+
+        public Item GetItem(int index)
+        {
+            if (index < slots.Count)
+            {
+                Item item = slots[index];
+                return item;
+            }
+            return Item.Null;
+        }
+
+        public int ItemIndex(Item item)
+        {
+            for(int i=0; i < slots.Count; i++)
+            {
+                if(slots[i] == item)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         public void AddItem(Item item)
         {
             if (slots.Count < Capacity)

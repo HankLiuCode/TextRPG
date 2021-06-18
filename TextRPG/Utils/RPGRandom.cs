@@ -20,6 +20,11 @@ namespace TextRPG.Utils
             return result;
         }
 
+        public static int NextInt(int min, int max)
+        {
+            return random.Next(min, max);
+        }
+
 
         public static string ChooseFrom(string[] strings)
         {

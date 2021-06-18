@@ -1,4 +1,5 @@
 ﻿using TextRPG.Graphics;
+using System.Collections.Generic;
 
 namespace TextRPG
 {
@@ -9,21 +10,19 @@ namespace TextRPG
         public MonsterUI(Vector2 position, Vector2 rect)
         {
             window = new Window(position, rect);
-            foreach (Character monster in MonsterManager.monsters)
+            List<Monster> monsters = GameManager.gameEntityManager.Find<Monster>();
+            foreach (Monster monster in monsters)
             {
-                monster.OnAttack += Character_OnAttack;
                 monster.OnHealthModified += Character_OnHealthModified;
             }
-            MonsterManager.OnReload += MonsterManager_OnReload;
+            GameManager.gameEntityManager.OnLoad += GameEntityManager_OnLoad;
         }
 
-
-
-        private void MonsterManager_OnReload(object sender, System.EventArgs e)
+        private void GameEntityManager_OnLoad(object sender, System.EventArgs e)
         {
-            foreach (Character monster in MonsterManager.monsters)
+            List<Monster> monsters = GameManager.gameEntityManager.Find<Monster>();
+            foreach (Character monster in monsters)
             {
-                monster.OnAttack += Character_OnAttack;
                 monster.OnHealthModified += Character_OnHealthModified;
             }
         }
@@ -31,7 +30,7 @@ namespace TextRPG
         public void ShowMonsterStats(Character character)
         {
             window.Clear();
-            window.Write(string.Format("{0} Health: ({1}/{2})", character.name, character.Health, Character.MAX_HEALTH));
+            window.Write(string.Format("{0} Health: ({1}/{2})", character.name, character.Health.ToString("0"), Character.MAX_HEALTH));
             window.Write(string.Format("Strength:   {0}", character.Stats.strength));
             window.Write(string.Format("ArmorClass: {0}", character.Stats.armorClass));
             window.Write(string.Format("Dexerity:   {0}", character.Stats.dexerity));
@@ -43,11 +42,6 @@ namespace TextRPG
             ShowMonsterStats(e.character);
             if (e.healthState == HealthState.Dead)
                 window.Clear();
-        }
-
-        private void Character_OnAttack(object sender, OnAttackEventArgs e)
-        {
-            
         }
 
         public Window GetWindow()

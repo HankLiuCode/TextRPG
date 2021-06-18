@@ -20,23 +20,34 @@ namespace TextRPG
     {
         public static Map CurrentMap;
         private static Dictionary<string, Door> paths;
+        public static GameEntityManager gameEntityManager;
 
         public static void Initialize()
         {
+            gameEntityManager = new GameEntityManager();
             paths = new Dictionary<string, Door>();
 
+            Map start = ReadRoomFile("Rooms\\start-room");
+            Map left = ReadRoomFile("Rooms\\left-room");
+            Map top = ReadRoomFile("Rooms\\top-room");
+            Map right = ReadRoomFile("Rooms\\right-room");
+            Map bottom = ReadRoomFile("Rooms\\bottom-room");
+            Map victory = ReadRoomFile("Rooms\\victory-room");
 
-            Map room1 = ReadRoomFile("Rooms\\room1", "room1");
-            Map room2 = ReadRoomFile("Rooms\\room2", "room2");
-            Map room3 = ReadRoomFile("Rooms\\room3", "room3");
-            Map room4 = ReadRoomFile("Rooms\\room4", "room4");
+            ConnectMaps(start, left);
+            ConnectMaps(start, top);
+            ConnectMaps(start, right);
+            ConnectMaps(start, bottom);
+            ConnectMaps(bottom, victory);
 
-            ConnectMaps(room1, room2);
-            ConnectMaps(room2, room3);
-            ConnectMaps(room2, room4);
-
-            CurrentMap = room1;
+            CurrentMap = start;
             LoadMap(CurrentMap);
+        }
+
+        public static Map ReadRoomFile(string path)
+        {
+            string room = File.ReadAllText(path);
+            return new Map(room, Path.GetFileName(path));
         }
 
         public static void ConnectMaps(Map map1, Map map2)
@@ -53,12 +64,6 @@ namespace TextRPG
                     map2.SetChar(doorPos2, '.');
                 }
             }
-        }
-
-        public static Map ReadRoomFile(string path, string roomName)
-        {
-            string room = File.ReadAllText(path);
-            return new Map(room, roomName);
         }
 
         public static void AddPath(Door doorA, Door doorB)
@@ -83,18 +88,24 @@ namespace TextRPG
             return null;
         }
 
+        public static Door GetDoor(Map map, Vector2 position)
+        {
+            string doorKey = map.Name + position;
+            if (paths.ContainsKey(doorKey))
+            {
+                return paths[doorKey];
+            }
+            return null;
+        }
+
         public static void LoadMap(Map map)
         {
             CurrentMap = map;
-            MonsterManager.UnloadMonsters();
-            ObstacleManager.UnloadObstacles();
-            MapController.UnBindAll();
-
-            MonsterManager.LoadMonsters(map, 'm');
-            ObstacleManager.LoadObstacles(map, '#');
+            gameEntityManager.UnloadGameEntities();
+            gameEntityManager.LoadGameEntities(map);
         }
 
-        public static void LoadMap(Door door, GameEntity gameEntity, Vector2 direction)
+        public static void MoveGameEntityToMap(Door door, GameEntity gameEntity, Vector2 direction)
         {
             CurrentMap.SetChar(gameEntity.Position, '.');
             LoadMap(door.map);

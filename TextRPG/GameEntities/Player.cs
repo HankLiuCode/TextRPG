@@ -1,5 +1,6 @@
 ﻿using System;
-using TextRPG.Graphics;
+using TextRPG.Audio;
+using System.Collections.Generic;
 
 namespace TextRPG
 {
@@ -43,7 +44,44 @@ namespace TextRPG
             
             Experience = 0;
             Inventory = new Inventory(5);
-            MonsterManager.OnMonsterDied += MonsterManager_OnMonsterDied;
+            List<Monster> monsters = GameManager.gameEntityManager.Find<Monster>();
+            foreach (Monster m in monsters)
+            {
+                m.OnDestroy += M_OnDestroy;
+            }
+            GameManager.gameEntityManager.OnLoad += GameEntityManager_OnLoad;
+            GameManager.gameEntityManager.OnUnload += GameEntityManager_OnUnload;
+            OnAttack += Player_OnAttack;
+        }
+
+        private void GameEntityManager_OnUnload(object sender, EventArgs e)
+        {
+            List<Monster> monsters = GameManager.gameEntityManager.Find<Monster>();
+            foreach (Monster m in monsters)
+            {
+                m.OnDestroy -= M_OnDestroy;
+            }
+        }
+
+        private void GameEntityManager_OnLoad(object sender, EventArgs e)
+        {
+            List<Monster> monsters = GameManager.gameEntityManager.Find<Monster>();
+            foreach (Monster m in monsters)
+            {
+                m.OnDestroy += M_OnDestroy;
+            }
+        }
+
+        private void M_OnDestroy(object sender, OnDestroyEventArgs e)
+        {
+            Monster monster = (Monster) e.destroyTarget;
+            Reward reward = monster.Reward;
+            Experience += reward.exp;
+            foreach (Item item in reward.items)
+            {
+                Inventory.AddItem(item);
+            }
+            monster.OnDestroy -= M_OnDestroy;
         }
 
         public override void Update(int step)
@@ -52,44 +90,48 @@ namespace TextRPG
                 return;
 
             keyInfo = Console.ReadKey(true);
-            Vector2 nextPos = Position;
+            bool upPressed = keyInfo.Key == ConsoleKey.UpArrow || keyInfo.Key == ConsoleKey.W;
+            bool leftPressed = keyInfo.Key == ConsoleKey.LeftArrow || keyInfo.Key == ConsoleKey.A;
+            bool rightPressed = keyInfo.Key == ConsoleKey.RightArrow || keyInfo.Key == ConsoleKey.D;
+            bool downPressed = keyInfo.Key == ConsoleKey.DownArrow || keyInfo.Key == ConsoleKey.S;
+            bool movePressed = upPressed || leftPressed || downPressed || rightPressed;
 
-            if (keyInfo.Key == ConsoleKey.UpArrow)
+            bool num1Pressed = keyInfo.Key == ConsoleKey.D1 || keyInfo.Key == ConsoleKey.NumPad1;
+            bool num2Pressed = keyInfo.Key == ConsoleKey.D2 || keyInfo.Key == ConsoleKey.NumPad2;
+            bool num3Pressed = keyInfo.Key == ConsoleKey.D3 || keyInfo.Key == ConsoleKey.NumPad3;
+            bool num4Pressed = keyInfo.Key == ConsoleKey.D4 || keyInfo.Key == ConsoleKey.NumPad4;
+            bool num5Pressed = keyInfo.Key == ConsoleKey.D5 || keyInfo.Key == ConsoleKey.NumPad5;
+
+            Vector2 nextPos = Position;
+            if (upPressed)
             {
                 nextPos += Vector2.Up;
             }
-            else if (keyInfo.Key == ConsoleKey.LeftArrow)
+            else if (leftPressed)
             {
                 nextPos += Vector2.Left;
             }
-            else if (keyInfo.Key == ConsoleKey.DownArrow)
+            else if (downPressed)
             {
                 nextPos += Vector2.Down;
             }
-            else if (keyInfo.Key == ConsoleKey.RightArrow)
+            else if (rightPressed)
             {
                 nextPos += Vector2.Right;
             }
 
+
             int numPressed = -1;
-            switch (keyInfo.Key)
-            {
-                case (ConsoleKey.D1):
-                    numPressed = 1;
-                    break;
-                case (ConsoleKey.D2):
-                    numPressed = 2;
-                    break;
-                case (ConsoleKey.D3):
-                    numPressed = 3;
-                    break;
-                case (ConsoleKey.D4):
-                    numPressed = 4;
-                    break;
-                case (ConsoleKey.D5):
-                    numPressed = 5;
-                    break;
-            }
+            if (num1Pressed)
+                numPressed = 1;
+            else if (num2Pressed)
+                numPressed = 2;
+            else if (num3Pressed)
+                numPressed = 3;
+            else if (num4Pressed)
+                numPressed = 4;
+            else if (num5Pressed)
+                numPressed = 5;
 
             if (Experience >= MAX_EXP)
             {
@@ -100,26 +142,51 @@ namespace TextRPG
                 UseItem(numPressed - 1);
             }
 
-
-
+            GameEntity ge = GameManager.gameEntityManager.GetGameEntity(nextPos);
             Door door = GameManager.GetDoor(nextPos);
-            Monster monster = MonsterManager.GetMonster(nextPos);
-            Obstacle obstacle = ObstacleManager.GetObstacle(nextPos);
 
-            if (monster != null)
+            if (ge is Obstacle)
             {
+                GameConsole.Write("It's a Wall");
+            }
+            else if (ge is Monster)
+            {
+                Monster monster = (Monster)ge;
                 Attack(monster);
                 monster.Attack(this);
+                MidiPlayer.PlayAttack();
+            }
+            else if (ge is ItemEntity)
+            {
+                if (Inventory.IsFull())
+                {
+                    GameConsole.Write("Inventory Is Full");
+                    MidiPlayer.PlayFailed();
+                }
+                else
+                {
+                    ItemEntity itemEntity = (ItemEntity)ge;
+                    Inventory.AddItem(itemEntity.item);
+                    GameManager.gameEntityManager.Remove(ge);
+                    MidiPlayer.PlayPickup();
+                }
+            }
+            else if (ge is Monster)
+            {
+                Monster monster = (Monster)ge;
+                Attack(monster);
+                monster.Attack(this);
+                MidiPlayer.PlayAttack();
+            }
+            else if (ge is Locker)
+            {
+                GameConsole.Write("Need a key to open");
+                MidiPlayer.PlayFailed();
             }
             else if (door != null)
             {
-
                 Vector2 direction = nextPos - Position;
-                GameManager.LoadMap(door, this, direction);
-            }
-            else if (obstacle != null)
-            {
-
+                GameManager.MoveGameEntityToMap(door, this, direction);
             }
             else
             {
@@ -129,6 +196,9 @@ namespace TextRPG
 
         public void UseExperience(int index)
         {
+            if (index > 4 || index < 1)
+                return;
+
             if (index == 1)
             {
                 Stats = Stats.PlusStrength(1);
@@ -149,49 +219,92 @@ namespace TextRPG
                 Stats = Stats.PlusAccuracy(1);
                 Experience -= MAX_EXP;
             }
+            MidiPlayer.PlayHealthUp();
         }
 
         public void UseItem(int index)
         {
             if (index >= 0 )
             {
-                Item item = Inventory.UseItem(index);
+                Item item = Inventory.GetItem(index);
                 if (item == Item.Bomb)
                 {
-                    Monster[] bombedMonsters = new Monster[4];
-                    bombedMonsters[0] = MonsterManager.GetMonster(Position + Vector2.Right);
-                    bombedMonsters[1] = MonsterManager.GetMonster(Position + Vector2.Down);
-                    bombedMonsters[2] = MonsterManager.GetMonster(Position + Vector2.Left);
-                    bombedMonsters[3] = MonsterManager.GetMonster(Position + Vector2.Up);
-
-                    for (int i = 0; i < bombedMonsters.Length; i++)
+                    int bombRange = 2;
+                    Inventory.UseItem(index);
+                    for (int i = -bombRange; i < bombRange + 1; i++)
                     {
-                        if (bombedMonsters[i] != null)
+                        for(int j = -bombRange; j < bombRange + 1; j++)
                         {
-                            bombedMonsters[i].ModifyHealth(-50);
+                            GameEntity ge = GameManager.gameEntityManager.GetGameEntity(Position + new Vector2(i, j));
+                            if(ge != null && ge is Monster)
+                            {
+                                Monster m = (Monster)ge;
+                                if (m != null)
+                                    m.ModifyHealth(-100);
+                            }
                         }
                     }
+                    MidiPlayer.PlayBombAttack();
                 }
                 else if (item == Item.HealthPotion)
                 {
+                    Inventory.UseItem(index);
                     ModifyHealth(20);
+                    MidiPlayer.PlayHealthUp();
                 }
                 else if (item == Item.StrengthPotion)
                 {
+                    Inventory.UseItem(index);
                     Stats = Stats.PlusStrength(2);
+                    MidiPlayer.PlayHealthUp();
                 }
+                else if(item == Item.KEY_curly || item == Item.KEY_square || item == Item.KEY_round)
+                {
+                    int lockerRange = 1;
+                    for (int i = -lockerRange; i < lockerRange + 1; i++)
+                    {
+                        for (int j = -lockerRange; j < lockerRange + 1; j++)
+                        {
+                            GameEntity ge = GameManager.gameEntityManager.GetGameEntity(Position + new Vector2(i, j));
+
+                            if(ge != null && ge is Locker)
+                            {
+                                Locker locker = (Locker)ge;
+                                bool success = locker.Unlock(item);
+                                if (success)
+                                {
+                                    Inventory.UseItem(index);
+                                    MidiPlayer.PlayUnlock();
+                                }
+                                else
+                                {
+                                    MidiPlayer.PlayFailed();
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
-        private void MonsterManager_OnMonsterDied(object sender, OnMonsterDiedEventArgs e)
-        {
-            Reward reward = e.diedMonster.Reward;
-            Experience += reward.exp;
+        //private void MonsterManager_OnMonsterDied(object sender, OnMonsterDiedEventArgs e)
+        //{
+        //    Reward reward = e.diedMonster.Reward;
+        //    Experience += reward.exp;
 
-            foreach (Item item in reward.items)
-            {
-                Inventory.AddItem(item);
-            }
+        //    foreach (Item item in reward.items)
+        //    {
+        //        Inventory.AddItem(item);
+        //    }
+        //}
+
+        private void Player_OnAttack(object sender, OnAttackEventArgs e)
+        {
+            GameConsole.Clear();
+            GameConsole.Write(string.Format("{0} atk-> {1} ({2})", e.attacker.name, e.victim.name, e.success ? (-e.damage).ToString() : "Miss"));
+            
+            
         }
     }
 }

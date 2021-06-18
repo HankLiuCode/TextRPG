@@ -6,18 +6,12 @@ namespace TextRPG.Graphics
     static class Renderer
     {
         static List<Window> renderList;
-        static Dictionary<char, Pixel> _colorMapping;
+
 
         static Renderer()
         {
             renderList = new List<Window>();
-            _colorMapping = new Dictionary<char, Pixel>();
             Console.CursorVisible = false;
-        }
-
-        public static void SetColorMapping(Dictionary<char, Pixel> colorMapping)
-        {
-            _colorMapping = colorMapping;
         }
 
         public static void AddWindow(Window window)
@@ -63,18 +57,6 @@ namespace TextRPG.Graphics
                     {
                         if (y < w.Buffer.Count)
                         {
-
-                            ////colored version but has lagging issue
-                            //Console.SetCursorPosition(w.Position.x, w.Position.y + y);
-                            //string line = w.Buffer[y];
-                            //for (int i = 0; i < line.Length; i++)
-                            //{
-                            //    char c = line[i];
-                            //    Console.BackgroundColor = _colorMapping.ContainsKey(c) ? _colorMapping[c].bgColor : ConsoleColor.Black;
-                            //    Console.ForegroundColor = _colorMapping.ContainsKey(c) ? _colorMapping[c].color : ConsoleColor.White;
-                            //    Console.Write(c);
-                            //}
-
                             // black and white version
                             Console.SetCursorPosition(w.Position.x, w.Position.y + y);
                             Console.Write(w.Buffer[y]);

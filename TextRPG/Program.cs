@@ -17,15 +17,6 @@ namespace TextRPG
 
         public static void Game()
         {
-            // Question: How to accelerate render process
-            Dictionary<char, Pixel> colorMapping = new Dictionary<char, Pixel>();
-            colorMapping.Add('@', new Pixel(ConsoleColor.White));
-            colorMapping.Add('#', new Pixel(ConsoleColor.White));
-            colorMapping.Add('.', new Pixel(ConsoleColor.White));
-            colorMapping.Add(',', new Pixel(ConsoleColor.Black, ConsoleColor.Green));
-            colorMapping.Add('\"', new Pixel(ConsoleColor.Black, ConsoleColor.Green));
-            
-            Renderer.SetColorMapping(colorMapping);
             GameManager.Initialize();
 
             Vector2 playerStartPos = GameManager.CurrentMap.FindCharPosition('@');
